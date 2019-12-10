@@ -1,0 +1,59 @@
+具体地址:https://www.cnblogs.com/ailiailan/p/8729544.html
+1.base 下新建runmethod 封装发生post和get请求,获取返回数据
+注意:在定义post和get请求时,就可以将有可能入参为空的值默认赋值为空
+2.一些通用的东西写到共有方法中,减少代码冗余性
+base 下新建mock.py 模拟返回数据
+
+
+2.oprate_data此文件夹下存放操作Excel用例
+data_config 获取Excel中的每一列
+(在data_config文件中默认赋值header)
+
+操作Excel operation_Excel
+data = xlrd.open_workbook() 括号中加入表格的地址路径,表示打开这个文件
+data.sheets()[n] 获取第n个表格,返回的是一个对象
+data.sheets()[n].rows() 获取表格的行数
+data.sheets()[n].cell_value(row,col) 获取该表格第几行第几列的具体数值
+将数据写入Excel的思路
+1.先将原Excel文件打开
+2.将原Excel文件复制一份 需要导入xlutils.copy模块下的copy方法,直接调用该方法即可
+3.选择需要操作Excel的哪一张表 sheet_data = write_data.sheets()[sheet_id]
+4.将数据写入表格中的具体行与值 sheet_data.write(row,col,value)
+5.将Excel保存 write_data.save(self.file_name)
+此处引入知识点:copy函数,write函数,save函数
+
+
+有时候data数据可能存在一个json文件中 所以还需要封装操作json文件 
+get_data 获取单元格具体内容
+(在get_data文件中添加将实际结果写入Excel中的方法)
+
+3.Dependent 解决数据依赖
+
+4.dataconfig 存放excel用例，json文件
+
+5.tools 
+定义一个common_util 将两个字段进行对比
+定义一个sendmail，封装发送邮件
+
+
+run_test模块中
+1.isinstance（）函数  
+isinstance（a，b）判断a是否是b类型  isinstance（a，str）判断a是否是字符串类型，返回结果为true或false
+2.cmp（）函数
+cmp(a,b) 用于比较a和b两个对象  if a<b返回-1，if a=b返回0，if a>b 返回1
+
+
+Python连接数据库
+遇到问题:
+1.pycharm在安装pymysql模块时一直报错,提示pip版本问题
+解决办法:将该目录下旧版本pip包删掉安装最新版本pip即可
+
+2.sql返回的结果是总数,而没有将每一个字段都返回回来
+解决办法:cur.execute(sql)返回回来是结果总数,要想拿到具体结果,需要cur.fetchone()
+
+3.在运行总入口文档时,总是报错获取到了一个意外的参数header
+解决办法:在写发送请求(post和get)方式时,需将header改为headers,这是规定死的  requests.post(url=url,data=data,headers=header)
+
+发送请求时,默认为空,不为空的问题
+1.安装pymysql包,import pymysql
+2.新建脚本,建立mysql连接

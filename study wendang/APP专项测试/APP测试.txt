@@ -1,0 +1,49 @@
+Android手机崩溃日志查看
+1.通过adb连接手机
+2.输入adb logcat -v time >d:/log.txt 抓取log
+3.打开log,如果是无响应则搜索ANR,如果是crash则搜索fatal
+
+APP专项测试
+1.功能测试 稳定性测试 兼容性测试(覆盖各种机型,各种型号,刘海屏,屏幕大小,Android系统版本)
+2.弱网断网测试
+3.安装卸载测试
+4.新旧版本测试
+
+app测试与pc测试的区别
+1.从功能和流程上没有什么大的区别
+2.pc端主要考虑到浏览器的兼容性（ie，谷歌，火狐），app测试需要覆盖Android和iOS，还有手机的机型，屏幕分辨率，屏幕大小，刘海屏
+3.pc端测试，服务端更新，所有功能更新，大家都是一致的，app的服务端更新，需要将核心业务回归测试一遍，并兼顾老版本和新版本
+4.性能方面，pc端一般只需考虑服务器响应时间，而app还需要关心流量，电量，cpu，内存
+5.app相比pc多了一些app专项测试，比如：一些异常场景的考虑和弱网络测试，异常指中断，来电，短信，关机，重起等
+弱网络和切换网络，安装，卸载，更新
+
+APP稳定性测试实例:https://blog.csdn.net/niuniu0186/article/details/79866783
+
+自己总结步骤
+1.下载安装build-tools和platform-tools压缩包
+2.分别将这两个目录地址设置环境变量path
+遇到的问题:
+error: device unauthorized.This adb server's $ADB_VENDOR_KEYS is not set 
+解决办法:重新插入usb接口即可
+
+adb error: device not found
+原来的压缩包错误,调试过程中需要将Android手机开发者工具打开,usb调试也打开
+
+'aapt' 不是内部或外部命令，也不是可运行的程序 或批处理文件。
+未下载build-tools压缩包,未将它设置环境变量
+3.usb连接手机,将Android手机开发者工具打开和usb调试都打开
+4.pc端cmd进入platform-tools目录下,运行adb shell,若返回$则安装成功
+5.在pc上执行aapt dump badging + apk所在目录(直接拖拽即可),获取包名
+6.执行adb shell monkey -p appname -v -v -v 100000 --ignore-crashes --ignore-timeouts >e:\b.log
+7.日志文件中搜索关键词ANR exception，将之前的事件重新操作，尤其是seed值要一模一样，如monkey -p 包名 -v seed 0 500
+日志分析：查看是否有crash等关键字，找上下文，进行简单分析将你所能定位的错误信息发给开发
+无响应问题（ANR问题）,崩溃问题：在日志中搜索“Exception”
+
+monkey什么时候用？等而产品稳定了，没有特别多的bug时候，一般用monkey去测试待测试应用的稳定性，健壮性，（是否会发生闪退，崩溃）手机出厂前的整机测试
+
+adb device 检测连接到电脑的安卓设备，这个是我们后期经常会用到
+adb start-server 当adb出现问题或者adb启动不起来的时候，先kill掉进程然后adb kill-sever 然后输入adb start-server 
+通过操作CTRL+D 或exit 就可以退出shell远程连接.
+
+
+如何对app进行弱网测试
