@@ -27,7 +27,43 @@ Git是分布式版本控制系统，那么它就没有中央服务器的，每�
 
 github账户名
 humingyue0920/hu09200815/1325445822@qq.com
-git使用https协议，每次pull,push都要输入密码，使用git协议，使用ssh秘钥，可以省去每次输密码
+
+
+1.如何配置ssh
+为什么要配置ssh
+因为不配置的话,每次pull,push,commit都需要输入密码,设置后则可直接进行操作
+1.首先输入命令 cd ~/.ssh命令查看是否已经存在公钥私钥
+2.若不存在,则执行命令ssh--Keygen -t rsa -C "1325445822@qq.com"
+3.则会在.ssh文件夹下生成公钥私钥文件,将后缀名为pub的内容复制到个人的github,settings->SSH and GPG keys中即可
+4.在Git bash中输入ssh -T git@github.com-->yes(注:一定要输入yes,不能一直默认下去)
+
+2.一台电脑连接多个github时该如何操作
+为什么一台电脑需要连接多个github
+因为你可能需要连接公司的github进行项目开发,你自己也有个人的github账户,上传代码和拉代码的时候配置不同的key,可以上传至不同的Git库
+配置私人库的步骤基本如上,配置连接公司库如下
+1.执行命令ssh--keygen -t rsa -C "yourcompany@qq.com" -f ~/.ssh/company_rsa
+2.则会在.ssh/company_rsa文件夹下生成公钥私钥文件,将后缀名为pub的内容复制到公司的github,settings->SSH and GPG keys中即可
+3.在.ssh文件夹下创建文件,vim config或touch config,输入以下命令
+#personal github 配置个人私钥公钥
+Host github.com
+HostName github.com
+User humingyue0920
+IdentityFile /c/Users/jhs/.ssh/id_rsa
+
+#company github 配置公司私钥公钥
+Host github.com
+HostName github.com
+user companygithubuser
+IdentityFile /c/Users/jhs/.ssh/company_rsa/id_rsa
+4.在Git bash中输入ssh -T git@github.com-->yes(注:一定要输入yes,不能一直默认下去)
+注:当只连接一个github时,无需config
+
+3.多台计算机连接一个github时该如何操作
+每台都配置ssh
+
+4.Git的gui模式该如何使用
+需要下载tortoise git插件
+
 
 
 
