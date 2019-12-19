@@ -33,7 +33,7 @@ humingyue0920/hu09200815/1325445822@qq.com
 为什么要配置ssh
 因为不配置的话,每次pull,push,commit都需要输入密码,设置后则可直接进行操作
 1.首先输入命令 cd ~/.ssh命令查看是否已经存在公钥私钥
-2.若不存在,则执行命令ssh--Keygen -t rsa -C "1325445822@qq.com"
+2.若不存在,则执行命令ssh-Keygen -t rsa -C "1325445822@qq.com"
 3.则会在.ssh文件夹下生成公钥私钥文件,将后缀名为pub的内容复制到个人的github,settings->SSH and GPG keys中即可
 4.在Git bash中输入ssh -T git@github.com-->yes(注:一定要输入yes,不能一直默认下去)
 
@@ -66,25 +66,24 @@ IdentityFile /c/Users/jhs/.ssh/company_rsa/id_rsa
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+1.将本地代码提交到远程服务器
+实际的原理:
+1.将工作区间(即我们本地创建的文件夹)添加到缓冲区,然后再commit到本地仓库,最后push到远程服务
+在tortoise中操作步骤就是先commit后push
+2.将服务器上的代码拉到本地
+如果本地不存在这个仓库,则先克隆
+如果本地存在这个仓库,但代码不够新,则先pull
+3.本地创建分支
+tortoise工具中有switch/checkout，在这里可以新建分支
+新建成功后，可将分支切换，进行commit，push和pull操作
+4.服务器上创建分支
+服务器上的页面可以直接创建
+5.文件提交到分支上
+先切换分支到所建的分支，commit-》push
+6.Git合并分支
+利用merge命令即可
+世上最详细的git原理解释：https://blog.csdn.net/yangstarss/article/details/80691775
+使用TortoiseGit操作分支的创建与合并：https://www.cnblogs.com/hbujt/p/5554038.html
 
 
 

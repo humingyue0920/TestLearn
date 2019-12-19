@@ -1,0 +1,6 @@
+TestNG:
+5-2 主要内容:idea中如何创建mudal(子模块)
+5-3 主要内容:@Test注解,testng中最基本注解,用来把方法标记为测试的一部分
+5-4  beforeMethod在测试方法之前运行, AfterMethod在测试方法之后运行
+特点:在每个测试方法之前和之后都会运行一次
+5-5 BeforeClass和AfterClass 在类之前运行和类之后运行
