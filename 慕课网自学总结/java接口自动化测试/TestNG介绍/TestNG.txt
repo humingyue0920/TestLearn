@@ -4,3 +4,34 @@ TestNG:
 5-4  beforeMethod在测试方法之前运行, AfterMethod在测试方法之后运行
 特点:在每个测试方法之前和之后都会运行一次
 5-5 BeforeClass和AfterClass 在类之前运行和类之后运行
+5-6 beforeSuite和AfterSuite
+suite测试套件
+@BeforeSuite：对于套件测试，在此套件中的所有测试执行之前运行，仅运行一次
+@AfterSuite：对于套件测试，在此套件中的所有测试执行之后运行，仅运行一次
+5-7 测试套件
+1.新建package：suite
+2.在suite下分别新建suiteconfig，login，pay类
+3.在source下新建testng配置xml文件：test.xml
+4.分别在文件中写入代码
+5.其中xml文件中需要注意的是name标签一定要有，但名字可以自己随便定义
+其中class的name规则一定是最上层的包名.类名
+5-8 忽略测试
+本次测试执行并不想要执行这个测试类
+操作方法：在@Test注解后添加enable属性即可
+@Test（enabal=false）   @Test（enabal=true）
+5-9 TestNG组测试之方法分组
+beforeGrounp和AfterGrounp
+@test注解中一定要带有groups属性
+@beforeGroups一定要带有组名称
+注：在测试方法之前执行，且只执行一次
+5-10 TestNG组测试之类分组
+组测试如何在类上运行
+本次运行只想运行一部分组
+具体见代码grouponclass1,grouponclass2,grouponclass3和grouponclass.xml文件
+注意grouponclass.xml文件中<group>标签写法
+
+
+
+由此可见，testng运行时，顺序是这样的：
+@BeforeSuite->@BeforeTest->@BeforeClass->{@BeforeMethod->@Test->@AfterMethod}->@AfterClass->@AfterTest->@AfterSuite
+
