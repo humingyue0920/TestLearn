@@ -1,0 +1,174 @@
+7-1:moco框架基本介绍
+mock其实就是模拟接口
+mock平台功能介绍:get,post,header,cookie,重定向
+不仅仅可以给测试人员使用,还可以给前端人员使用,对测试产出非常重要,说明你能力的平台
+获取mock框架:Github上下载mock jar包,包名standalone
+具体地址见:https://www.cnblogs.com/qiaoxin/p/9504475.html
+
+7-2 moco的启动及第一个demo
+1.新建目录:chapter7
+2.将下载的moco jar包复制到该文件夹下
+3.新建file,命名readme.txt
+在此文件中写入代码
+java -jar ./moco-runner-0.12.0-standalone.jar http -p 1818 -c startdemo1.json
+其中启动命名为java -jar,后面加jar包的相对路径及文件名
+http代表采用何种协议,必须放在-p前面
+-p 后面接端口号
+-c 后面接json格式的配置文件,可以是相对路径也可以是绝对路径
+4.新建file,命名startdemo1.json(注:有固定格式)
+[
+{
+"description":"这是第一个mock例子",
+"request":{
+"uri":"./demo"
+},
+"response":{
+"text":"这是第一个moco框架demo"
+}
+}
+]
+5.在teminal终端上进入chapter7目录下,运行命令java -jar ./moco-runner-0.12.0-standalone.jar http -p 1818 -c startdemo1.json
+5.在浏览器中输入localhost:1818/demo或127.0.0.1:1818/demo即可
+
+7-3 带参数的get方法实现
+本小节重点:模拟一个没有参数的get请求和一个带参数的get请求
+1.新建file,命名startUpGet.json
+[
+{
+"description":"这是一个不带参数的get请求",
+"request":{
+"uri:"getdemo",
+"method:"get"
+}
+"response":{
+"text":"这是一个不带参数的get请求demo"
+}
+}
+]
+2.带参数的应该怎么样写,在原来的基础上再加一个{}即可
+[
+{},
+{
+"description":"这是一个带参数的get请求",
+"request":{
+"uri:"getparamdemo",
+"method:"get"
+"queries":{
+"name":"胡汉三",
+"age":"18"
+}
+}
+"response":{
+"text":"我胡汉三又回来啦!!!!"
+}
+}
+]
+热部署:服务不用停止,就可以完成...一个操作
+注:queries的名称一定要拼对
+
+7-4 moco框架的http协议post方法Mock实现
+1.新建file,startupPost.json文件
+具体代码自己写
+在浏览器中访问post方法,无法访问,需在jmeter中请求
+
+7-5 带参数的post方法实现
+1.在startupPost.json文件中添加代码
+具体代码自己写
+注:post的请求参数和get还是有一定的区别的
+post的请求参数要用forms
+总结:post和get请求参数的区别
+
+7-6 带cookies信息的get请求
+1.新建file,startupWithCookie.json
+[
+  {
+    "description": "这是一个带cookie的get请求",
+    "request": {
+      "uri": "/getdemo/with/cookie",
+      "method": "get",
+      "cookies": {
+        "login": "true"
+      }
+    },
+    "response": {
+      "text": "this is a get request with cookie"
+    }
+  }
+]
+注:1.cookies用大括号,且是cookies而不是cookie
+2.在jmeter添加的cookie管理器中必须要添加域和管理器,域为localhost,路径为/
+
+7-7 带cookies信息的post请求
+1.在startupWithCookie.json文件中添加代码
+具体代码自己写
+注:带着数据去访问,将forms改为json
+遇到问题:将forms改为json,访问不通
+解决办法:当请求参数格式为forms时,jmeter请求方式必须是parameters,当请求参数格式为json时,jmeter请求方式必须是Body Data
+response返回的添加点新东西 "status":200
+返回格式也是以json返回
+
+7-8 带有headers信息的mock请求
+headers信息在get和post的请求中是一致的
+1.新建file,命名startupWithHeaders.json
+[
+  {
+    "description": "这是一个带headers的post请求",
+    "request": {
+      "uri": "/postdemo/with/headers",
+      "method": "post",
+      "headers": {
+        "content_type": "application/json"
+      },
+      "json": {
+        "name": "liulaosi",
+        "sex": "woman"
+      }
+    },
+    "response": {
+      "status": 200,
+      "json": {
+        "headers": "sucesses",
+        "status": 1
+      }
+    }
+  }
+]
+post中的请求入参是否能够改成get请求中的quries,实际证明不可以
+
+7-9 moco框架中如何进行重定向，方法采用get
+1.新建file,命名startupWithredirect.json
+具体代码自己写
+重定向到百度redirectTo
+重定向到一个自己的网页
+这是被重定向的请求
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
