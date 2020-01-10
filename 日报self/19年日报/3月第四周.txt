@@ -1,0 +1,47 @@
+2019/3/25 周一
+1.昵称超过10字未隐藏
+2.盈利广场接口返回的margin为空
+3.拉到底部未显示我是有底线的
+4.前台保证金字段目前取得是购买金额*购买股数，实际取得应该是接口返回的margin字段
+测试V1.9 版本盈利广场的需求(包括接口与界面与测试点)
+
+2019/3/26 周二
+继续测试股票账号配置和盈利广场的需求
+引入mysql TO_DAYS()函数:https://blog.csdn.net/only_musm/article/details/79023079
+APP测试手机模拟器
+查询接口与数据库查询返回数据进行对比
+抓包工具Fillder总结:https://www.cnblogs.com/yyhh/p/5140852.html
+xml配置文件基础教程:http://www.w3school.com.cn/xml/index.asp
+接口测试总结:https://www.cnblogs.com/yyhh/p/6083159.html
+json extractor：https://blog.csdn.net/WANGtesting/article/details/80540775
+json extractor踩坑：
+json extractor提取多个变量时，default vlues一定要随着所设的变量名去变化，不能只设一个null值，会导致请求不通
+
+跨线程组传cookie:https://blog.csdn.net/achongchong/article/details/85008274
+注:token和cookie是有区别的,就自己目前个人理解,cookie是存在浏览器里的,所以一般管理台会用到cookie
+而token是APP端用户登录信息,存在token里
+
+
+2019/3/27 周三
+1.在写添加自选需鉴权的接口用例过程中思考入参的那些数值如何从数据库中读取，并且与csv date set config连用
+2.如何读取csv date set config中指定行数文件
+3.思考jdbc request查询语句中是否可以有多个查询语句，多个返回参数
+对于添加自选接口的入参看看能不能哪一个接口返回回来的数据传参，而不是手动传参
+添加自选的接口入参来源可以从数据库取过来也可以从接口出参取过来
+三个实例说明Jmeter中正则表达式提取器的高级使用：
+https://wenku.baidu.com/view/e668f5f5b9f67c1cfad6195f312b3169a451eaf0.html
+查询金股为什么要有两个接口，如果另一个接口是查看金股的详细信息，为什么不需要入参，程序规定好的？
+
+
+2019/3/28 周四
+2019/3/29 周五
+期权的接口用例全部写完，以及返回结果的验证与由来
+最后，期权接口，在哪一步调用，调用顺序，做成自动化
+做成自动化的接口是否需要考虑异常流情况？
+
+app接口3：查询期权涨跌幅是不是需要鉴权？问开发
+已解决
+接口12.查询金股这个接口是干什么的，我看返回回来的数据都是关于期权的
+接口6：查询智选金股和期权，这个接口是不是只查询智选金股，因为期权接口2也已经返回了主力合约了
+Jmeter中的正则表达式提取器的意思说？表示匹配到第一个后停止，但在在线测试工具中看会将所有匹配结果都返回回来，不知道是因为我的理解有错，还是在线匹配工具有错，可以等接口通了以后，通过Jmeter添加工具来看匹配了哪些结果
+正则表达式提取器关于多个匹配模式介绍：https://blog.csdn.net/qq_37556007/article/details/80678037

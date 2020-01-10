@@ -1,0 +1,99 @@
+2019/12/16 周一
+主要存在问题：
+1.券交易失效缺少一条记录，至今没有找到原因  //重新写了方法
+2.iOS和Android应用内外的样式
+3.iOS现测试已登陆的所有样式，现未登录样式和推广管理后台根据iOS的状态来区分推广信息展示清空未测试  OK
+4.首页的头条又爬不到图片  //删数据后又全都正常
+
+
+后续版本升级
+1.资金明细接口暂时不返回失效记录,为兼顾APP,产品安排放在后续版本中对接  移至backlog中,2.14中应返回该条数据
+2.资讯详情页微信,朋友圈新版本需要调用新样式（iOS只有提示，请放入app的需求中）
+3.老版本点击推广信息无反应，新版本的跳转需要APP对接 需求请放入APP2.12的版本
+4.推广管理菜单修改时跳转路径和参数无法回显
+5.更改采集资讯展示类型（1小图改1大图） 开发没有时间做
+6.iOS资讯样式存在问题
+7.iOS资讯详情内老版本无法分享，已登陆情况下，微信，朋友圈，分享点击没有反应（老版本采用新框架，无分享方法）
+评论循环展示已取消
+其中的风险：资讯头条时好时坏，未找到原因
+
+10030457  111165
+
+
+2019/12/17   周二
+Android
+1.持仓均价显示错误
+2.优化的行情板块
+板块区域加大，目前部分地方点击无跳转，券可以全部跳转
+3.白银快捷下单，点击报单app闪退，其他品种点击买涨买跌app闪退
+4.提示语优化的提示保证金未按照手数计算,立即入金改为快速入金
+5.提示语优化，挂单没有按照买涨买跌自动选择，默认手数和价格不对
+
+
+2019/12/18 周三
+Android
+1.第二次修改昵称后，页面提示密码失效   无法修改，passport的问题
+2.退出登陆后，我的页面滑动到最上面，依然显示用户昵称，同理，由未登录到已登陆，依然显示我的，需杀进程后才显示昵称
+3.登陆的时候，定位到用户名弹框，需立即出现关闭按钮
+4.委托单，条件单，成交单保持与持仓单的样式一致，修改背景颜色和字体颜色
+5.关闭app和杀掉进程，没有记住上次选择的品种
+6.除了白银以外的品种，开休市和涨跌停样式需调整
+7.涨跌幅等于0时，展示了向上的箭头
+8.买入持仓之后，权益和可用没办法实时变动，需点击进入资金概况后才能刷新
+9.闭市平仓跳转的止损止盈不正确,应跳转到百分比止盈
+
+
+
+INSERT INTO `jjh_td_icbc`.`user_info`(`id`, `cngold_id`, `open_id`, `acct_no`, `open_type`, `cust_name`, `user_pwd`, `cert_num`, `cert_type_id`, `mem_id`, `bank_no`, `account_no`, `bind_account_no`, `mobile_phone`, `tel`, `zipcode`, `email`, `card_expire_date`, `province`, `branch_no`, `addr`, `artificial_num`, `ex_recommender`, `status`, `created_at`, `updated_at`, `web_account`, `step`, `device_type`, `settlement_account_flag`) VALUES (13, NULL, NULL, '0001311018465959', NULL, 'ghnvb', '0ab44bd43d6b18fcd5cd928d6faab1b8', '110102199603230135', NULL, '110102199603230135', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '农业', NULL, NULL, NULL, NULL, NULL, '6228481234567800565', 0, NULL, 0);
+
+
+2019/12/19  周四
+今日任务安排:
+1.历史成交,历史委托   OK
+2.导航列表后台测试   再等等
+3.获取菜单导航接口测试  OK
+4.APP导航对接测试环境,APP样式展示正确,跳转地址展示正确   下个版本上,暂不需要测试
+5.iOS新版本微信分享和推广信息跳转
+6.实盘登录密码老版本,新版本,浦发和工行,登录,设置密码,忘记密码,修改密码,先从新版本开始测试
+
+INSERT INTO `td_voucher`.`voucher_navigation`(`nav_name`, `behavior`, `param`, `created_at`, `creator`, `modifier`, `updated_at`, `img_url`, `opera_system`, `account_status`) VALUES ('黄金etf', 9, '', '2019-12-19 10:59:53', '测试零', NULL, NULL, '/upload/voucher/2019/1219/4d6d126a931114231f52fdab0aa613ba.jpg', 1, '1');
+
+后台：
+同一个状态和操作系统下不能超过16个
+同一个状态下位置和名称不能重复
+
+
+
+2019/12/10  周五
+后台：
+1.导航列表菜单，同一状态下，位置和名称应不能重复
+2.设置第17个时，创建失败但页面无提示
+
+iOS目前存在以下两个问题，你看一下，
+1.银行纸黄金跳转地址错误，实际跳到了自选   OK
+2.资金概况和出入金，未登录实盘时应跳转到交易页，且弹出登陆实盘弹框，目前是只跳转到了交易页  OK
+
+
+INSERT INTO `td_voucher`.`voucher_navigation`(`rank`, `nav_name`, `behavior`, `param`, `created_at`, `creator`, `modifier`, `updated_at`, `img_url`, `opera_system`, `account_status`) VALUES (1, '24h快讯', 10, '', '2019-12-20 09:19:47', '测试零', NULL, NULL, '/upload/voucher/2019/1220/91cac73f6fec6051ad0814bfcb55ccf0.jpg', 1, '1');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

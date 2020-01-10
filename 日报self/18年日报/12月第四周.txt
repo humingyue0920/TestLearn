@@ -1,0 +1,44 @@
+2018/12/24 周一
+关闭本期所有需求
+整理升级文档并提交
+将数据库root密码破解重新梳理一遍
+本准备着手重新梳理关于95转94，外网访问94机器这个问题，但因为下午状态不好，头疼遂放弃
+昨天晚上回到家，思考我这一天到底做了什么，发现并没有做到什么实事，这让我觉得有点懊恼
+遂定下明天的计划目标
+
+
+2018/12/25 周二
+搞懂95转94，在nginx添加的配置文件
+前段时间关于本地用docker搭一套jenkins玩玩
+nginx官方中文文档：https://www.gitbook.com/book/wizardforcel/nginx-doc
+nginx官方文档：http://nginx.org/en/docs/
+nginx从入门到精通：http://tengine.taobao.org/book/index.html
+如何查看服务器端口占用情况：https://jingyan.baidu.com/article/cb5d6105f38baf005d2fe04a.html
+注：任一目录都可使用cat /etc/services
+etc前必须加/
+netstat -anp |grep 服务名暂时不可用，不知道原因
+https://www.cnblogs.com/Leo_wl/p/8439827.html
+
+
+2018/12/26 周三
+需求过一遍
+上线前资料文档准备
+继续捣鼓本地搭建jenkins
+本地windows搭的jenkins：用户名：admin/Asd@20180418
+
+
+2018/12/27 周四
+还是在本地捣鼓jenkins，现如今还是没有什么实质性的进展，遂决定放弃，暂放一阵，也许会有新的发现
+12月份生产升级，又又又又出漏子了，测试时没发现，上线时发现了
+
+
+2018/12/28 周五
+本地捣鼓
+
+
+2018/12/29 周六
+需求会
+
+
+
+

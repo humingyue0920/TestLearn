@@ -1,0 +1,123 @@
+2019/6/18 周二
+403错误,表示资源不可用,服务器理解客户端的请求,但是拒绝处理它,通常是由于服务器上目录和文件的权限设置导致web访问错误
+
+2019/6/19 周三
+移户失败:最后3分钟进行移户,3点后资金结算,要求第二天可以继续移户
+移户成功卖出失败:最后3分钟资金结算,要求第二天自动挂着卖
+实盘强平,导出,手动强平标记
+持仓单查询是否正确
+历史订单的数据是否正确,包括实盘,移户,实盘手动强平,移户单手动强平
+
+
+需求V1.19-V1.24
+V1.19  
+1.推送条件有些是否后台可以设置?仅仅是持仓时提示,买入时是否有提示
+2.涨跌幅这种数据库是否会存,否则涨跌幅测试环境不好买
+3.分红转赠,业绩报表,业绩预报,业绩预告这种后台设置吗 (前一天买,后一天提示) 当天规定时间之前买,当天规定时间之后买
+
+
+
+实盘强平功能
+问题1:点击移户,页面提示操作失败,请联系管理员
+问题2:持仓单的实盘强平,页面报500的错   ok
+问题3:历史订单对于策略类型为移户单的订单,平仓类型返回为空   ok
+问题4：移户详情新账户未买入状态为空   OK
+问题5：移户成功卖出失败，定时任务自动挂单有问题 
+问题6： 移户成功卖出失败，自动挂单未在原账户卖出，在一个不相干的账户卖出
+
+
+
+if (a.aData["unwindType"] == 1) {
+                            return "委托";
+                        } else if (a.aData["unwindType"] == 2) {
+                            return "止损";
+                        } else if (a.aData["unwindType"] == 3) {
+                            return "强平";
+                        } else if (a.aData["unwindType"] == 4) {
+                            return "到期";
+                        } else if (a.aData["unwindType"] == 5) {
+                            return "保证金不足";
+                        } else {
+                            return "状态错误";
+                        }
+
+
+
+1.定时任务每天九点25跑
+2.卖出失败  将sell_yh表中id=00000199780改成卖出失败
+修改字段 deal_price = 0 deal_count = 0 sell_sign = 7 deal_code = null  sell_amount = null 
+0431账户神州高铁交易所下200股单
+
+3.移户失败
+建仓id=20 82.c-1067  移户成功改成移户失败
+hold表id=20修改  ,account_no = 82.c,yh_state = 1
+buy_yh id = 00000194614 ,修改字段deal_price = 0,deal_count = 0,buy_sign = 7,state  deal_code = null
+1082账户全新好手动下200股单子
+
+并将旧账户卖出的卖出记录删除
+INSERT INTO `strategy`.`strategy_sell_yh`(`id`, `stock_code`, `stock_name`, `entrust_price`, `entrust_count`, `deal_price`, `deal_count`, `slline`, `margin`, `buy_amount`, `order_id`, `entrust_time`, `user_id`, `dfee`, `service_fee`, `sell_type`, `sell_sign`, `stock_hold_id`, `oper`, `account_no`, `clear_type`, `investment_id`, `result_time`, `buy_id`, `is_lock`, `creator`, `modifier`, `created_at`, `updated_at`, `deal_code`, `sell_amount`, `financing`, `collateral`, `new_account_no`) VALUES (00000199788, '000007', '全新好', 6.4300, 200, 7.0100, 200, 6.67, 181.00, 1442.00, '41157', '2019-06-14 14:56:31', 1067373, 3, 8, 1, 1, 20, '平台', '012600011082.C', 1, '平台', '2019-06-14 14:56:40', 20, 1, NULL, NULL, '2019-06-14 14:56:30', '2019-06-14 14:56:30', '0101000019266473', 1402.00, 2, 2, '012600011067');
+
+移户中在持仓单叫做未移户
+
+
+2019/6/20 周四
+移户验证通过bug记录：https://note.youdao.com/ynoteshare/index.html?id=b3dfcd3f606a5b69aa727b06c51a49cf&type=note
+移户未验证bug记录：https://note.youdao.com/ynoteshare/index.html?id=df70cf1389d04ee0d64e3c2b3abca5ac&type=note
+job定时任务：http://192.168.105.69:8888/jobinfo
+
+1.昨天说移户失败状态为2,现是7
+2.交易所还是已申报,为何我们这是7,状态从哪得来的  3点10分跑定时任务
+3.卖出失败的标志什么时候改  3点10分跑定时任务
+
+
+2019/6/21 周五
+下周一会有一笔卖出失败的单子自动挂单卖出 sell_yh的id= 00000199780
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+今天的我真的很生气,是来磨练我的脾气的吗,自认为我的脾气已经非常好了
+我已经很久没有发脾气了,或者说很少在公共场合发脾气,成年人大概就是有掀桌子的冲动但也有不掀桌子的修养吧
+说实话我做错了,即使奋力的敲键盘又有什么用,什么问题也解决不了,反而会让周边的人觉得你是个脾气暴躁的人
+若我真的想发泄去找另一个方法吧
+现在才明白一份好的工作对自己来说真的非常重要,员工一定要责任心很强,当然一个团队的领导力也是非常重要的,还有合理规划任务,公司的企业文化

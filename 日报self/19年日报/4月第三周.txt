@@ -1,0 +1,136 @@
+2019/4/15 周一
+融资买入：资即钱，用钱去买入股票
+直接还款：用钱去还款，买的股票还在
+买券还款：将买来的股票卖掉
+关于Jmeter踩得两个坑
+1.csv文件的参数中在使用变量，无法使用，请求中直接以变量的名字读取
+2.请求参数中多个值用逗号分开，在csv文件中用逗号隔开，jmeter只能取到一个值，后面直接被截掉了
+今日完成的任务：担保品维持比例测试完成，接口逻辑梳理
+
+
+2019/4/16 周二
+8接口bug：查询股票行情，返回结果股票类型错误
+查询多个期权，结果返回只有一个
+期权返回名称为空
+
+9接口：suspension字段接口文档显示错误，接口文档中只有1和2 出参返回3
+plate字段含义以及枚举提供
+
+-- mysql case的用法
+SELECT	
+CASE
+	state
+	WHEN '0' THEN
+	'未发布' 
+	WHEN '1' THEN
+	'已发布' ELSE '已下线' 
+END as '状态'
+FROM
+	strategy_share_gold
+
+
+
+-- 查询15555877052担保品买入持仓列表
+SELECT * from strategy_stock_hold where sell_type = 5 and user_id = 1067339 and account_no like '%C';
+-- 查询buy表中担保品买入记录
+SELECT * from strategy_buy where id in(SELECT buy_id from strategy_stock_hold where sell_type = 5 and user_id = 1067339 ) and account_no like '%C';
+-- 查询buy表中担保品买入记录指定字段
+SELECT id,stock_code,stock_name,collateral from strategy_buy where id in(SELECT buy_id from strategy_stock_hold where sell_type = 5 and user_id = 1067339 ) and account_no like '%C';
+-- 查询成交表中担保品成交记录
+SELECT * from strategy_history where buy_id in(SELECT id from strategy_buy where account_no like '%82.C' )
+
+担保品卖出
+
+
+2019/4/17  周三
+接口测试
+下班再研究获取热门搜索与数据库数据比对，如何进行轮询比对
+
+保持测试环境稳定，测试担保品交易流程
+查询更多涨幅、更多跌幅、更多个股详情页
+查询涨幅
+查询跌幅
+查询个股
+查询非三种情况
+查询不存在
+查询空
+
+
+查询金股接口
+1.range字段含义，猜测取得是涨跌幅吗
+2.nowPrice字段需要返回值吗？目前返回的是null
+3.buyperson取得是数据库的哪一个字段 //假的数据
+4.buysuccessDate数据来源是哪 //
+5.newupdateTime数据来源于哪
+
+
+1.入参为非必填，不传时相当于传默认值，接口文档中注释
+2.传入非限定值，返回结果给出相应提示，传参错误或者请在某几个值中选择
+
+
+
+if(!"${plateName_matchNr}".equals("${plate_name_#}")) //数据库的取值与接口正则取值比对
+ {
+
+Failure = true;
+
+FailureMessage =${plateName_matchN}+ ",error,check error," + ${plate_name_#};
+
+} else {
+
+FailureMessage = ${plateName_matchN}+ "ok,check current"+ ${plate_name_#};
+
+}
+
+
+现如今bug
+1.接口8，查询期权接口返回名称为空
+2.获取热门搜索接口，入参不在0，1，2的数字中，预期结果：接口返回数据提示不在选择范围内，实际结果：查询成功，接口数据为0
+2.1 对于其他异常流有时间再改动
+3.发现模块接口传入为空时，默认
+
+
+查询金股没问题
+
+发现下的接口返回字段
+
+
+if("${shares_code_1}".equals("${sharesCode_1}"){
+ 		Failure = false;
+          FailureMessage = "查询的数量一致";
+      }
+	  
+	  
+	  
+	  
+
+
+2019/4/18 周四
+平仓接口剩余:委托价高于某一个价卖出,低于跌停价卖出
+etf_history表中无数据
+
+
+查询建仓平仓策略:目前接口无问题,注意覆盖建仓平仓委托多条数据
+覆盖系统平仓委托单
+买一笔这个月到期的期权,在到期日不可进行建仓这支期权,可以进行卖,两点半之后无法进行卖,系统自动卖出
+
+
+查询历史策略
+1.入参isDeal不存在时,接口应返回入参错误
+2.入参pagesize为0时,接口应返回入参错误
+
+
+
+
+if("i".equals.(1)){
+	failure = false;
+	FailureMessage = "匹配成功";
+}else{
+	failure = true;
+	FailureMessage = ${i}+ ",error,check error," ;
+}
+log.info("----------------------" +i)
+
+
+
+上周主要测试接口与担保品的bug回归测试

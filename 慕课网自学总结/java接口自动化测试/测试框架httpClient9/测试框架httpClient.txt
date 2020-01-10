@@ -1,0 +1,19 @@
+1.HTTP client就是模拟HTTP协议客户端的一种技术，可以发送post，get请求
+HTTP client官方网站：hc.apache.org
+1.新建moudal，chapter9
+2.在pom文件中添加依赖
+3.在Java中添加package，com.course.httpclient.demo
+4.创建类，MyHttpclient
+里面的代码我是真的没看懂
+
+2.httpClient get方法实现
+1.在第七章 startupwithcokkies文件中添加代码
+该代码的主要作用是将cookie信息在返回结果中返回
+将该文件启动，可在浏览器F12 application中看到cookie信息
+疑问：仅仅只在response中添加了cookies返回信息，为何F12之后，request cookie中也有login true的信息
+//在network那里看的cookies信息不准
+
+9-3 配置优化方法
+1.新建package com.course.httpClient.cookies
+2.新建类 MyCookies
+3.在resourse下添加配置文件

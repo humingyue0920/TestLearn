@@ -1,0 +1,52 @@
+2018/8/13 周一
+结束份额转让的测试
+对产品销售数据统计的bug进行回归测试
+意向客户测试一部分
+
+2018/8/14 周二
+结束产品销售数据统计的测试
+当两种方式都可行的时候，求一种改动最小，最方便的方式
+微信端风险评估测试（留下一个小bug）
+从中午到现在一直有种如鲠在喉的感觉，不知道这个成语用的对不对，但这种感觉让我不舒服，倒不是因为工作，因为感情，我为什么要有愧疚感，这让我觉得很讨厌，这本就是一个很正常的过程，就像逛街买衣服一样，不能因为试了几件衣服感到愧疚就买了一件我并不喜欢的衣服，花钱还找罪受，况且人生大事要比买衣服重要的多，更不能草率。
+
+2018/8/15 周三
+意向客户测试，提bug
+项目融资部邮件提醒关闭
+风险评估审核流程配置脚本编写完成
+-- 关于更新生产上buser表中的brch_id与ywc_staff_rank表中的dept_id不同，数据库脚本更新
+SELECT
+	b.SYS_USER_ID,
+	b.USER_NAME,
+	b.BRCH_ID,
+	u.DEPT_ID 
+FROM
+	buser b,
+	uwc_staff_rank u 
+WHERE
+	b.SYS_USER_ID = u.STAFF_ID 
+	AND b.BRCH_ID <> u.DEPT_ID;
+	
+	UPDATE uwc_staff_rank usr set usr.DEPT_ID = 47 where usr.STAFF_ID = 134;
+	UPDATE uwc_staff_rank usr set usr.DEPT_ID = 48 where usr.STAFF_ID = 135;
+	UPDATE uwc_staff_rank usr set usr.DEPT_ID = 48 where usr.STAFF_ID = 152;
+	UPDATE uwc_staff_rank usr set usr.DEPT_ID = 242 where usr.STAFF_ID = 157;
+	UPDATE uwc_staff_rank usr set usr.DEPT_ID = 185 where usr.STAFF_ID = 836;
+	UPDATE uwc_staff_rank usr set usr.DEPT_ID = 246 where usr.STAFF_ID = 990;
+	UPDATE uwc_staff_rank usr set usr.DEPT_ID = 263 where usr.STAFF_ID = 1002;
+	UPDATE uwc_staff_rank usr set usr.DEPT_ID = 263 where usr.STAFF_ID = 985;
+	UPDATE uwc_staff_rank usr set usr.DEPT_ID = 248 where usr.STAFF_ID = 116;
+	UPDATE uwc_staff_rank usr set usr.DEPT_ID = 263 where usr.STAFF_ID = 1034;
+	UPDATE uwc_staff_rank usr set usr.DEPT_ID = 33 where usr.STAFF_ID = 1022;
+	UPDATE uwc_staff_rank usr set usr.DEPT_ID = 52 where usr.STAFF_ID = 1112;
+	UPDATE uwc_staff_rank usr set usr.DEPT_ID = 278 where usr.STAFF_ID = 1118;
+	UPDATE uwc_staff_rank usr set usr.DEPT_ID = 246 where usr.STAFF_ID = 1157;
+	
+	
+2018/8/16 周四
+关于重复数据整理的测试
+项目融资部和意向客户的bug回归测试
+
+
+
+2018/8/17 周五
+结束意向客户的测试以及生产上的一些bug

@@ -1,0 +1,215 @@
+2019/7/29 周一
+结束所有测试用例的编写
+结束出入金的测试
+1.如何利用Python开发测试框架
+	1.利用requests包去封装函数,模拟发生post,get请求
+		requests与request的区别
+		requests.get() requests.post()模拟发送请求,赋值后代表返回回来的整个json结果
+		request.GET.get()  request.POST.get() 获取接口的返回字段
+	2.利用unittest框架去管理case
+	case按照命名规则升序执行,可以跳过,可以指定执行,还可以添加assert断言 case的依赖
+	3.利用HTMLtestRunner去生成测试报告
+	4.数据的存储与管理:可以利用Excel或者mysql
+	5.与Jenkins集合持续集成
+2.如何管理case
+	利用unittest框架去管理case
+	case按照命名规则升序执行,可以跳过,可以指定执行,还可以添加assert断言 case的依赖
+	case写在Excel中
+3.简述case的执行
+	case的执行是按照case命名的升序规则去执行的,unittest框架去管理
+4.如何解决case的依赖
+	可以将一个接口的出参结果定义为全局变量,或者可以将该变量写在配置文件中或存储到数据库中,需要时调用
+5.如何生成HTML报告
+	官网下载HTMLtestRunner.py文件,将该文件复制到Python安装目录的lib文件夹下,在模块中导入
+	最后在模块中指定生成报告的目录,并给该目录赋予读写权限,利用HTMLTestRunner.HTMLTestRunner()函数去生成测试报告
+	
+	
+与jmeter相比,jmeter是如何去做接口自动化测试的
+1.jmeter如何做接口自动化测试
+	利用jmeter编写测试脚本,新建线程组,添加http请求,模拟发生post,get请求
+	可以利用CSV set config数据分离,用Excel与管理测试用例,也可以完全编写http请求
+	利用jmeter内置函数vars.get()获取接口返回接口,对出参进行断言,也可以之间添加response assert添加响应结果断言
+	利用jmeter内置函数vars.put()设置全局变量解决接口之间的依赖,或者利用正则表达式提取器,json extract
+2.下载插件HTML 
+	利用ant jmeter Jenkins生成HTML测试报告
+	
+	
+2019/7/30 周二
+又到了开始提测的时间,心又开始累了
+又到了开发与测试拉锯战的时候,心累
+没有说明哪部分可以测试,没有更新测试环境，群里发了消息也不回
+
+今日发现bug
+1.代金券查询菜单报空指针错误,报500 领券客户查询,用券客户查询,交易数据->交易统计,菜单打不开  //菜单合并,还未开发完成
+2.券盈利提现菜单清空查询按钮不起作用,运营活动->APP推送,清空查询按钮不起作用,微信公众号->用户行为,微信公众号->分享模板(本身的查询功能也有错误)
+3.交易数据->实盘交易信息 清空查询后改菜单变为代金券交易信息
+4.报表统计->开户统计  日期增加时间弹框
+5.报表统计->开户统计 点击首页和末页跳转到邀请记录菜单
+6.注册用户开户状态,浦发开户,工行开户点击查询后,状态变为全选
+7.注册用户开户状态应该全部,已开户,未开户
+8.注册率计算错误
+
+
+今日任务:
+1.搞清楚Connection refused  https://blog.csdn.net/test1280/article/details/80642847
+2.扩展知识tcpdump抓包  https://blog.csdn.net/gh201030460222/article/details/80573526
+
+oppo R17 2.5-2.6
+魅族测试环境
+
+
+
+
+2019/7/31  周三
+1.交易统计菜单加清空查询按钮
+2.注册用户菜单查询结果列表将历史持仓改为首次登陆渠道
+线上bug：
+1.行情页面行情加载慢
+2.有些手机交易页面券加载的特别慢，一直转圈，右上角的刷新按钮一直在刷新
+3.代金券11：30-13：30 不能交易，改掉提示
+
+
+
+192.168.25.11:4640/userLog/newReport 
+
+cngoldId                   用户cngoldid  必传
+"phone", 	               电话号码
+"deviceId",		           设备ID  必传
+"appName",		           应用名称
+"clientType",              客户端类型 2：ios 1：Android
+"version", 	               客户端版本号
+"channel",		           注册渠道
+"phoneModel",              手机型号
+"systemVersion             系统版本
+"netType                   网络环境
+"openType               
+goldCode                   黄金编码  必传
+openProgress               1.开始开户   2.开卡  3.开户（开卡并签约）  必传  工行没有第二步
+openTime                   开户时间
+openOrganization 开户机构              ICBC(1, "工商银行"),SPDB(2, "浦发银行"),  必传
+openOrg                     浦发开户,工行开户
+
+
+头条接口
+/news/heading/{currentPage}/{pageSize}
+返回结果:
+{
+    "flag": true,
+    "timeout": false,
+    "code": 0,
+    "msg": "获取头条新闻成功",
+    "data": [
+        {
+            "createdAt": null,
+            "updatedAt": 1564549800000,
+            "creator": null,
+            "modifier": null,
+            "changeLog": null,
+            "id": 963575,
+            "currentPage": 1,
+            "pageSize": 30,
+            "pageStart": 0,
+            "queryBeginTime": null,
+            "queryEndTime": null,
+            "orderBy": null,
+            "queryKeyword": null,
+            "fields": null,
+            "version": null,
+            "command": null,
+            "title": "7.30徐老师交易计划：美联储议息会议对黄金影响的逻辑梳理",
+            "imgFlag": 1,
+            "dataType": 1,
+            "labelType": null,
+            "snippet": null,
+            "appUrl": null,
+            "imgUrl": null,
+            "pcUrl": null,
+            "appImgUrl": null,
+            "titleStyle": 0,
+            "categoryId": 2,
+            "countOfView": 6957,
+            "countOfAgree": 23,
+            "level": null,
+            "categoryName": "名师名家",
+            "pubTime": 1564478896000,
+            "pubTimeStr1": "2019-07-30",
+            "pubTimeStr2": "17:28",
+            "pubTimeStr3": "07.30",
+            "new": false
+        }
+    ]
+}
+
+10030097   1435428  10030096 1895345
+
+2019/8/1  周四
+
+赵帅杰
+六脉黑牛V1.14原型地址“http://ued.sangame.com/archetype/jjh/financing/%E7%AD%96%E7%95%A5%E2%80%94%E7%AE%A1%E7%90%86%E5%90%8E%E5%8F%B0/APPv1.14/#g=1&p=更新记录
+
+金元券说明
+1.金元券是什么？
+金元券分为黄金券和白银券，可用于金元券交易系统交易对应的商品。
+2.金元券如何获得？
+官方不定期举办各种送券活动，用户参与就有机会获得金元券。
+3.金元券提现规则
+1）用金元券交易平仓后，亏损部分无需用户填补现金，盈利部分可申请提现；
+2）提现金元券盈利必须先开通上海黄金交易所账户，且提现金额不能少于2元；
+3）提现时默认提现到开户银行卡和姓名；
+4）提现申请审核通过后，将在3个工作日内到账。
+4.交易规则
+同品种金元券对应的克数可以累加，算持有总克数；使用金元券交易时，用户可以选择交易克数。
+1）黄金券单笔下单最少1克，增减以1克为最小单位；
+2）白银券单笔下单最少1千克，增减以1千克为最小单位。
+3）同种商品同时只能持有一单，不支持加仓，若要继续下单，必须先平仓。
+金元券交易系统说明
+1.金元券交易系统仅限支持金元券交易，主要供新用户投资学习，模拟练手，商品含有黄金券和白银券，行情分别参考实盘m黄金T+D和白银T+D；
+
+2.金元券交易系统不支持挂单功能；持仓单在平仓时，只能全平。
+
+3.浮动盈亏计算
+
+（黄金券）
+买涨：（最新价-开仓均价）*克数
+
+买跌：（开仓均价-最新价）*克数
+
+（白银券）
+买涨：（最新价-开仓均价）*千克数
+
+买跌：（开仓均价-最新价）*千克数
+
+4. 强制平仓规则
+1）黄金券持仓单亏损超过2元/克，系统将自动平仓；
+2）白银券持仓单亏损超过 100元/千克，系统将自动平仓；
+3）使用金元券（即黄金券、白银券）下单的单子可持仓过夜至下一个交易日15:30，之后系统将自动平仓结算。
+
+
+m黄金展示改进
+
+
+2019/8/2  周五
+-- 查询昨天注册数
+SELECT COUNT(*) from voucher_customer_info where DATE(created_at) = DATE_SUB(CURRENT_DATE(),INTERVAL 1 DAY);
+
+-- 查询今日注册数
+SELECT COUNT(*) from voucher_customer_info where DATE(created_at) = CURRENT_DATE;
+
+-- 查询昨日意向开户数
+SELECT COUNT(*) from voucher_customer_info where (DATE(icbc_open_start_time) = DATE_SUB(CURRENT_DATE(),INTERVAL 1 DAY) and icbc_open_progress = 1) or (DATE(pf_open_start_time) = DATE_SUB(CURRENT_DATE(),INTERVAL 1 DAY) and pf_open_progress in(1,2)) and open_state <> 3;
+
+--  查询今日意向开户数
+SELECT COUNT(*) from voucher_customer_info where (DATE(icbc_open_start_time) = CURRENT_DATE and icbc_open_progress = 1) or (DATE(pf_open_start_time) = CURRENT_DATE and pf_open_progress in(1,2));
+
+-- 查询昨日开户数
+SELECT * from voucher_customer_info where DATE(pf_open_time) = DATE_SUB(CURRENT_DATE(),INTERVAL 1 DAY) or DATE(icbc_open_time) = DATE_SUB(CURRENT_DATE(),INTERVAL 1 DAY) and open_state = 3;
+
+-- 查询今日开户数
+SELECT COUNT(*) from voucher_customer_info where pf_open_time = CURRENT_DATE or icbc_open_time = CURRENT_DATE;
+
+
+-- 统计昨日浦发开户数
+SELECT COUNT(*) from voucher_customer_info where DATE(pf_open_time) = DATE_SUB(CURRENT_DATE(),INTERVAL 1 DAY);
+
+-- 统计昨日工商开户数
+SELECT COUNT(*) from voucher_customer_info where DATE(icbc_open_time) = DATE_SUB(CURRENT_DATE(),INTERVAL 1 DAY);

@@ -1,0 +1,13 @@
+疑问1：deploy_ws下的application.properties文件从哪copy过来的，1.conf/application.properties 2. webapps/ROOT/WEB-INF/classes/application.properties
+对于1，conf下并不存在application.properties 对于2，两个文件一样，就没有覆盖这一说
+是从2copy过来的，由于上线的时候我们会把自己的包放上去，里面的配置文件可能是开发环境的也有可能是测试环境的，所以今天先把生产上的copy过来，放到deploy_ws下，以后就不动了，上线的时候用这个文件覆盖或追加包里的配置文件
+疑问2：所编写的conf_ow.sh脚本中，为何有。。之说，不是都在同一个目录下吗，为什么要退到上一级目录，因为我当前在depoly_ws目录下，那些绝对路径不行吗，绝对路径要从头写，太长
+
+疑问3：用所建用户登录上数据库，fms和nfc是我所建的库，里面数据也是我导进去的，但information_schema 这个库非我所建
+information_schema是默认库，每一个用户都有，连接root用户的目的是为了创建用户，创建库
+需确定的:webapps下只留一个ROOT就行了，其他的能否删，生产上也只有一个ROOT
+可删可不删
+tc_fms_fs的服务还没起，不知该如何起
+和其他一样，只是没有webapps,ROOT 而已，配置文件，利用fms命令起起来
+
+https://blog.csdn.net/myo_o1/article/details/64131124

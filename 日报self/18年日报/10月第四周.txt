@@ -1,0 +1,111 @@
+2018/10/22 周一
+经过近一周的磨刀，跃跃欲试，开刷
+遇到问题1：运行时结果树无结果
+错误信息：ERROR o.a.j.c.CSVDataSet: java.io.IOException: Cannot have quote-char in plain field
+解决办法：https://blog.csdn.net/ljl6158999/article/details/80340281
+最后，上面的办法其实并未解决问题，报错是因为csv文件没有指定保存字符集，导致中文出现乱码，可是我保存的是csv utf-8啊，不知道什么时候被冲掉了，又变成了.csv逗号隔开
+重新保存为csv utf-8后问题解决
+遇到问题2：if controller 条件写成${priority}=H请求并不能执行
+解决办法：https://www.jianshu.com/p/1e7a60ae49d1
+将条件修改为${__groovy(${priority} = H,)}，发现还未解决问题
+最后，将条件修改为${__groovy("${priority}" == "H",)},出现结果，问题解决
+
+优化1：将请求中的path由原来的${path}514优化为${path}
+csv文件中增加一列参数为path,直接调用即可
+优化2：添加响应断言
+开始expectValue值为data:{"enterprise_id":""},响应断言错误，给date加双引号后，断言正确，"data":{"enterprise_id":""}
+
+新增意见反馈实际场景---只针对前台
+存在一个登录的情况和未登录的情况
+可在csv文件中设置参数isLogin,用if controller来判定执行
+
+在写csv文件过程中遇到的最大问题就是文件格式会随时转化
+解决办法：每编辑一次就另存为csv utf-8
+
+
+
+
+2018/10/23 周二
+意见反馈列表实际场景
+管理员登录一次即可，查询可循环多次
+解决办法：在线程组下添加once only controller,将登录请求放进去
+遇到问题3：同线程组内如何获取上一个请求的token信息
+解决办法：在线程组下添加一个空的HTTP Cookie Manage , 注：千万不要将该管理器放入登录线程的下级
+遇到问题4：E:\PSG-本地\Jmeter\加速度管理台自动化测试.jmx\意见反馈列表 该线程组下有两个控制器，这时候即使将HTTP cookie 管理器与登录请求放在同级，也不能对下一个控制器里的请求起到作用
+解决办法：将该控制器放到线程组的下级即可，由于放到控制器下，它的作用范围仅仅只是该控制器下
+
+扩展：同线程组和跨线程组自动获取登录SESSION
+jmeter跨线程自动获取登录SESSION：https://blog.csdn.net/baidu_24984787/article/details/79883133
+
+优化3：在测试意见反馈处理接口时发现入参中的一个参数是suggestion_feedback_id，该参数是存在数据库中的字段
+思考：该字段如何从数据库中字段获取，无需手动传参
+此处优化成本过大，此处不适用
+
+首先将JMeter连接上PSG数据库
+Jmeter如何连接数据库Mysql:https://blog.csdn.net/liujingqiu/article/details/73737854
+mysql jdbc驱动包下载地址：https://dev.mysql.com/downloads/connector/j/
+
+从数据库中读取数据进行登录操作
+Jmeter取数据库数据进行参数传递：https://www.cnblogs.com/beiank/p/9030792.html 或者 https://www.cnblogs.com/wuyonghuan/p/7479582.html
+遇到的问题5：按照博客中的说法，请求中用paramenters传递参数，发现报400的错误
+解决办法：改成用body传递参数，因为paramenters传递的是form，body传递的是json，而我们的接口规定死了是json,所以只能用body
+
+管理台从数据库读取数据自动登录实际场景
+管理台账户存在正常与冻结的区别，虽然可以从JDBC Request的请求中将状态为0的账户筛选出来
+但此刻我想将JDBC　request与if　controller连用，加一个判断
+此处暂未想到办法解决，但是JDBC Request定义变量status，在if　controller对他进行判断其实并不可以，不知道为什么
+
+
+
+
+ 2018/10/24 周三
+首先，解决昨天遗留问题：传参已接收到acssess——token，为什么还提示请登录
+原因：是因为我将前台登录的HTTP cookie Manage 拷贝过来导致的 
+
+导出兑付函按照产品简称来划分
+1.sql语句查询每个产品简称共有多少个兑付函，sql语句需要我每次粘贴复制产品简称，有次猜想是否可以利用JMeter工具JDBC传参
+解决办法：确实可以利用JMeter工具JDBC传参，但需要建多个请求，每个请求的变量值依然需要手动填写，工作量一样，曾尝试用csv文件导入，但是并不可行，所以思考能否用两个JDBC的请求，一个请求返回的结果作为下一个请求的入参
+实验失败，未找到解决办法
+
+在将PSG1.1.1版本的接口用例写入csv文件中发现，自造数据太麻烦，大多与状态值有关，即数据不具有复用性，此处不再重新找数据造数据
+现在大多接口但是单个测试，考虑如何将现有所有接口一起测试
+因为都是post请求，所以一个http请求即可，无需划分多个if controller,因为即使划分了也是按照csv文件顺序执行请求，而不能进行分类，所以在 加速度管理台所有接口自动化测试.jmx中两种效果是完全相同的
+
+我想不出接口测试还可以怎么优化了
+接口自动化测试最后的效果该是什么样的
+
+浅谈接口自动化测试：https://www.cnblogs.com/imyalost/p/7430126.html
+
+
+
+
+2018/10/25 周四
+今天没有什么事情做，感觉学习JMeter工具已经到达了瓶颈，不知道该干什么
+在做接口测试的时候我想给接口分类执行，分类显示，比如所有正确的参数请求放在一个线程组内，错误请求放在另一个线程组内，通过if controller来判定分类执行
+在实际的操作过程中，发现jmeter读取csv文件时,同一个文件不能被两个线程组读取，导致无法分类
+暂未找到解决办法
+
+Jmeter随机读取csv文件中的参数
+JMeter随机读取csv文件中的某一行参数：https://www.cnblogs.com/VashGu927/p/8572715.html
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

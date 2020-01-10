@@ -1,0 +1,80 @@
+2019/4/1 周一
+关于Jmeter中jp@gc - JSON/YAML Path Extractor的使用
+就是第二个请求可以获取上一个请求中的参数
+个人理解:Jmeter中jp@gc - JSON/YAML Path Extractor和json Extractor其实作用是一样的
+注意数组与非数组的提取方式 
+json Extractor提取多个参数时用分号隔开即可,具体见https://blog.csdn.net/WANGtesting/article/details/80540775
+
+接口响应结果，通常为HTML、JSON格式的数据，对于HTML的响应结果的提取，可以通过正则表达式，也可以通过XPath 来提取。
+
+对于JSON格式的数据，可以通过正则表达式、JSON Extractor插件、BeanShell 来提取。
+
+如果想要验证所提取的值是否正确,可以在提取器上添加父请求Dummy Sampler 来验证 JSON的取值
+引入Dummy Sampler:一个可以再脚本调试,或者在jmeter学习期间作为模拟生成器来使用的一个插件
+具体说明见:https://www.jianshu.com/p/c3be9cba8006
+其实request date和response date都是我们手动造出来的
+1.下载jmeter-plugins-manager-1.3.jar包。下载链接：https://yun.wpscdn.cn/a518f32dec0ec37b6a33804d1f59a326cd1a4731?response-content-disposition=attachment%3Bfilename%2A%3Dutf-8%27%27%25E8%25B1%2586%25E7%25AB%258B%25E8%2588%25AA.pdf&KSSAccessKeyId=AKLT16f4AqQXTBuZEyBzIqePSA&Expires=1542942696&Signature=gMkIs0BWnkNyPq0yfmHKsKsMGQc%3D
+2.将下载好的插件放在jmeter安装包：【lib】-【ext】目录下
+具体操作见:https://blog.csdn.net/doulihang/article/details/84401824
+
+如果想要提取json返回数据组中满足某一条件的值,可以使用Beanshell前置处理器,
+具体见:https://blog.csdn.net/haiou24/article/details/83417952
+
+
+
+2019/4/2 周二
+测试管理台V1.15管理后台需求，关于担保品的
+期权交易所买入期权股票，遇到账户问题，后续持续关注
+担保品bug：
+1.已成交的单子未进入持仓单还在委托单，并且点击撤单，页面提示撤销失败
+2.管理后台控制将担保品设置为禁买，预期结果，该支股票进入自有资金账户委托，实际结果进入担保品账户委托，并且点击撤单，页面提示撤单失败
+3.股票管理查询结果列表状态改为高风险股票，查询条件的的下拉框改为正常和禁止买入
+
+4.线上问题:iPhone5屏幕兼容性问题
+//已解决,不会为了这种小问题单独发一个版本,下个版本一起发,记得持续关注
+
+5.线上问题:持仓单列表和委托单数据列表过多时,导致可用资金,保证金显示为0,此问题发生在Android上,IOS也存在该问题,随后安卓修复,导致IOS出现新的问题,页面报错
+需持续关注
+
+获取持仓列表接口的返回数据,截取期权代码作为下一个接口的入参(获取持仓列表中未委托的期权代码,传给平仓委托进行卖出委托),遇到问题,不知道该怎么用正则表达式提取sellType为未委托的期权代码,用BeanShell PreProcessor也不知道该怎么做,随决定从数据库中筛选出持仓单中未委托的期权代码,传入给平仓委托接口
+暂时还没有做,因为现在还没有数据,后期有数据了再研究
+//解决办法:最终采用正则表达匹配到了想要匹配的,具体见期权自动化流程测试脚本中的获取持仓列表简单控制器下的正则表达式
+解决思路见:https://www.cnblogs.com/exmyth/p/7868582.html
+
+盈利广场修改后bug
+1.页面左对齐,如原型所示
+2.字体是黑体加黑,改成宋体8号
+
+交易接口文档中,查询建仓平仓策略其实就是查询委托单列表,查询历史策略其实就是交易页面的交易记录,根据入参的不同,返回所有还是已完成的记录
+
+
+
+2019/4/3 周三
+期权持仓限额:新开户权利仓持仓限额20张，总持仓限额50张
+权利持仓合约和委托合约等于持仓限额
+
+今日任务
+IOS APP 将盈利广场和充值提现再测一遍,测完放那,后期再发包,先不发
+目前IOS版本是1.9 发包更新后将是1.10 后期若上期权则是2.0
+注:关于充值提现只能在线网环境上测试,测试环境无法测试
+对应的需求为不知道多少了
+
+明日任务:接口返回结果正确性验证,数据库脚本写出来
+担保这块测一测
+后期APP页面的用例写起来
+
+
+2019/4/4 周四
+Jmeter之接口返回数据与数据库查询结果比对
+1.接口返回的单个信息与数据库返回的单个数据进行对比
+思路:第一步:创建请求,利用正则表达式将接口返回的你想要的的出参匹配出来
+第二步:创建JDBC request,添加BeanShell PostProcessor,在这里面加入脚本
+第三步:请求里面添加断言
+具体见:https://blog.csdn.net/weixin_33721427/article/details/88256149(这里面提供了思路,但是脚本有点行不通)
+jmeter使用BeanShell PostProcesso获取数据库多列数据:https://blog.csdn.net/wujiangxia/article/details/84554856(这里面提供了BeanShell PostProcessor脚本)
+注意tostring这个条件
+在做多个多个出参与多个数据库返回字段进行比对,本想用json extractor,好提取多个,用分号隔开即可,但是老是提取为null,猜测可能是因为我的json返回数据不对
+此处还是采取正则提取器来完成吧
+
+
+

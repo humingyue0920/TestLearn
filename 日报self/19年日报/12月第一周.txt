@@ -1,0 +1,94 @@
+2019/12/2  周一
+很多地方的域名用错了,报502
+
+老用户手动过期
+满足以下几个条件:
+1.剩余金额
+2.剩余金额去掉除券盈利来源的金额大于等于最小面额券盈利的值 券盈利为正  将这些记录的初始值为1未提现  一张
+多张的话  剩余金额去掉除券盈利来源的金额=券盈利之和,将所有记录初始值为1 券盈利为正
+多张的话  剩余金额去掉除券盈利来源的金额小于券盈利之和  将部分的初始值为1,其它为3  券盈利为正
+
+
+查询该用户是否有提现记录，有且提现金额总和大于等于券盈利之和，且提现状态是审核通过
+满足这个条件则将该用户的券交易的状态设置为3，不满足则将不满足的部分设置为1
+
+13 审核不通过
+11 已审核  12 已审核  14 提现成功  10 未审核
+
+查询用户最近一次提现记录并且成功的时间
+
+查询获取券盈利的时间在最近一次提现记录并且成功的时间之后，则将其状态赋予1，否则为3
+
+查询获取券盈利的时间在最近一次提现记录并且审核中的时间之前，则将其状态赋予2
+若不存在提现记录，则将其状态赋予1
+
+有条件单时成交单是否展示完全
+
+
+
+2019/12/3  周二
+-- 查询获取券盈利的时间在最近一次提现成功记录的时间之后的id(将这些id的状态更新为1)
+SELECT * from (SELECT id ,close_time, cngold_id from trade_orders where profit_loss > 0) a left JOIN (SELECT max(apply_date) apply_date , cngold_id from voucher_apply_takeout where apply_status <> 13  GROUP BY cngold_id) b on a.cngold_id = b.cngold_id where a.close_time < b.apply_date;
+
+-- 1.未提现  2.提现中  3.券过期
+-- 查询最近一次审核状态是审核通过
+SELECT max(apply_date) , cngold_id ,apply_status from  voucher_apply_takeout where apply_status in(11,12,14) GROUP BY cngold_id;
+-- 将再次之后获得的券盈利状态全部更新为1,每天定时任务去跑,达到过期时间则将其状态更新为3,已id为主键
+SELECT * from (SELECT id ,close_time, cngold_id from trade_orders where profit_loss > 0) a left JOIN (SELECT max(apply_date) apply_date, cngold_id ,apply_status from  voucher_apply_takeout where apply_status in(11,12,14) GROUP BY cngold_id) b on a.cngold_id = b.cngold_id where a.close_time > b.apply_date;
+
+
+-- 查询最近一次审核状态是审核中
+SELECT max(apply_date) , cngold_id ,apply_status from  voucher_apply_takeout where apply_status =10 GROUP BY cngold_id;
+
+-- 查询最近一次是审核不通过
+SELECT max(apply_date) , cngold_id ,apply_status from  voucher_apply_takeout where apply_status =13 GROUP BY cngold_id;
+
+-- 查询用户有券盈利但却没有提现记录
+SELECT * from trade_accnts where balance <> 0 and cngold_id not in (SELECT cngold_id from voucher_apply_takeout GROUP BY cngold_id);
+
+
+show VARIABLES like '%query%';
+
+select ((335.35+330+335.15+334.90)*100/10000*6)+(4095*6/10000);
+
+SELECT * from voucher_apply_takeout;
+
+-- 查询某一个用户的成功提现的总金额
+SELECT sum(apply_money) ,cngold_id from voucher_apply_takeout where apply_status <> 13  GROUP BY cngold_id;
+
+-- 查询某一个用户的券盈利之和
+SELECT * from trade_orders;
+SELECT sum(profit_loss),cngold_id from trade_orders where profit_loss > 0 GROUP BY cngold_id;
+
+-- 查询某一个用户资金划转金额总和
+SELECT * from customer_account_record;
+SELECT sum(amount_money) , cngold_id from customer_account_record where type = 2 and source <> 2 and state =2 GROUP BY cngold_id;
+
+-- 查询某一个用户的资金划转和券盈利总和 
+SELECT sum(d.a), d.b from (SELECT sum(profit_loss) a ,cngold_id b from trade_orders where profit_loss > 0 GROUP BY cngold_id union SELECT sum(amount_money) a , cngold_id b from customer_account_record where type = 2 and source <> 2 and state =2 GROUP BY cngold_id) d GROUP BY d.b
+
+
+-- 查询用户成功提现总金额不等于券盈利之和
+SELECT * from (SELECT sum(apply_money) as apply_money_count ,cngold_id from voucher_apply_takeout where apply_status <> 13  GROUP BY cngold_id) h INNER JOIN (SELECT sum(d.a) as get_money_count, d.b from (SELECT sum(profit_loss) a ,cngold_id b from trade_orders where profit_loss > 0 GROUP BY cngold_id union SELECT sum(amount_money) a , cngold_id b from customer_account_record where type = 2 and source <> 2 and state =2 GROUP BY cngold_id) d GROUP BY d.b) i on h.cngold_id = i.b where h.apply_money_count <> i.get_money_count;
+
+
+-- 查询用户成功提现总金额等于券盈利之和
+SELECT * from (SELECT sum(apply_money) as apply_money_count ,cngold_id from voucher_apply_takeout where apply_status <> 13  GROUP BY cngold_id) h INNER JOIN (SELECT sum(d.a) as get_money_count, d.b from (SELECT sum(profit_loss) a ,cngold_id b from trade_orders where profit_loss > 0 GROUP BY cngold_id union SELECT sum(amount_money) a , cngold_id b from customer_account_record where type = 2 and source <> 2 and state =2 GROUP BY cngold_id) d GROUP BY d.b) i on h.cngold_id = i.b where h.apply_money_count = i.get_money_count;
+
+
+
+2019/12/4  周三
+[推广管理]
+
+
+2019/12/5  周四
+[取消资讯图片限制]文章列表
+1.自此发布后,新发布的资讯列表缩略图不展示
+2.推荐的资讯并不是本栏目下的前10条资讯
+【资讯推广】
+聊天记录样式没有统一
+
+2019/12/5  周五
+[页面样式]
+【资讯分享】
+【资讯管理】

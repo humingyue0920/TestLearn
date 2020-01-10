@@ -1,0 +1,49 @@
+2019/6/3 周一
+今日待解决问题:Python脚本中r''中包含单引号该如何解决,现在的脚本报错
+解决办法:r''中不能包含单引号,因为Python脚本中引号都是成对出现的,r''不允许有单引号,可添加转义字符
+移户详情：
+成交编号无法查询
+
+2019/6/6  周四
+遇到疑问1:
+a = [1,2,3]
+print(id(a))
+a = a.append(4)
+print(id(a))
+print(a)  #None
+#此处引出来的新疑问,a重新赋值后打印出来的是空,如果不赋值则打印出来的是正确的,这问题百思不得其解
+a = [1,2,3]
+a.append(4)
+print(a)
+
+遇到疑问2:
+b = 1
+b += b >= 1
+print(b)  #2
+
+b = 1
+b += b > 1
+print(b) #1
+上面返回结果是2,下面结果返回是1,百思不得其解
+//解决办法:先判断是是 b >= 1,再将结果进行b +=的运算
+
+
+遇到疑问3:前面的学习中is是比较两个变量的内存地址,自认为是java中的equal,为什么此处用is比较,即使输入两个一模一样,程序也提示密码错误,只能用==号
+#判断用户输入用户名与密码是否一致,若一致则输出登录成功,否则提示密码错误
+account = '15555877052'
+password = 'hu123456'
+
+user_account = input('please input account')
+user_password = input('please input password')
+if account == user_account and password == user_password:
+    print('登录成功')
+else :
+    print('密码错误')
+
+
+
+遇到疑问4
+print('分割线5----------------')
+from folder.hello import *
+print(o)
+print(h)   # 单独跑这一段代码程序会报错，百思不得其解

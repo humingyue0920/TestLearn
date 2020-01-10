@@ -1,0 +1,77 @@
+压力测试思路
+单个接口的压力测试
+1.模拟单个用户同时并发多次
+2.模拟多个用户同时并发
+注册接口：利用随机函数模拟多个用户同时注册110${__Random(11111111,99999999,)}
+登陆接口：可以从数据库提取出所需要的字段，利用csv data set config导入
+建仓接口：可以从数据库提取出所需要的字段，利用csv data set config导入，添加Synchronizing Timer，设置集合点，模拟1000个用户登陆完成后，同时去建仓，并对每一个用户去资金校验
+Synchronizing Timer简介:https://blog.csdn.net/hwhua1986/article/details/78214923
+
+遇到问题：数据库的mobile字段是先通过base64进行加密，再通过aes 密钥123456进行加密，数据库无法进行解密，解密为空
+解决办法：暂时没有找到解决办法，可以注册登陆一体化，就不用从数据库获取mobile了
+遇到问题：平仓的时候还是需要这些用户信息，这个时候再来注册登陆吗？不合理
+最终解决办法:手机号设置一个初始值,添加count计数器,所以手机号相当于是已知的,利用count设置的mobile字段去登陆
+
+遇到另一个问题：如何在数据库批量插入成千上万条数据
+--创建MyISAM模式表方便批量跑数据
+ 
+CREATE TABLE `logs1` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `logtype` varchar(255) DEFAULT NULL,
+  `logurl` varchar(255) DEFAULT NULL,
+  `logip` varchar(255) DEFAULT NULL,
+  `logdz` varchar(255) DEFAULT NULL,
+  `ladduser` varchar(255) DEFAULT NULL,
+  `lfadduser` varchar(255) DEFAULT NULL,
+  `laddtime` datetime DEFAULT NULL,
+  `htmlname` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  AUTO_INCREMENT=1811 DEFAULT CHARSET=utf8 COMMENT='日志表';
+ 
+ 
+--创建存储过程
+ 
+DROP PROCEDURE IF EXISTS my_insert;
+CREATE PROCEDURE my_insert()
+BEGIN
+   DECLARE n int DEFAULT 1;
+        loopname:LOOP
+            INSERT INTO `logs1`(`logtype`,`logurl`,`logip`,`logdz`,`ladduser` ,`lfadduser`,`laddtime`,`htmlname`) VALUES ( 2, '/index', '0:0:0:0:0:0:0:1', null, null, 'null', '2018-05-03 14:02:42', '首页');
+            SET n=n+1;
+        IF n=10000000 THEN
+            LEAVE loopname;
+        END IF;
+        END LOOP loopname;
+END;
+ 
+ 
+--执行存储过程
+CALL my_insert();
+ 
+ 
+--数据插入成功后修改表模式InnoDB 时间稍微久点
+ alter table `logs1` engine=InnoDB;
+
+
+遇到问题总结：
+1.如何将数据库的mobile字段进行解密
+不解密,手机号设置一个初始值,Jmeter添加count计数器,所以手机号相当于是已知的,利用count设置的mobile字段去登陆
+2.如何向数据库插入成千上万条数据，并保证user_id 与用户表的id一一对应
+3.jmeter中的jdbc请求好像可以达到一次性插入多条数据，但如何保证user_id与id一一对应呢
+Jmeter插入语句,设置并发,将user_id设置一个初始值,添加count计数器,从而保证保证user_id与id一一对应
+4.数据库如何设置某一个字段从设定的某一个值开始自增
+利用数据库的存储过程执行,具体代码如下
+DROP PROCEDURE IF EXISTS my_insert;
+CREATE PROCEDURE my_insert()
+BEGIN
+   DECLARE n int DEFAULT 1;
+   DECLARE  user_id  bigint DEFAULT 2;
+        loopname:LOOP
+            insert into strategy_stock_hold_copy1 (`stock_code`, `stock_name`, `count`, `can_sold_count`, `buy_price`, `buy_time`, `real_time_price`, `pl_money`, `slline`, `margin`, `margin_add`, `day_delay_fee`, `delay_fee_time`, `delay_fee`, `service_fee`, `oper`, `investment_id`, `buy_id`, `account_no`, `user_id`, `is_part`, `sell_type`, `hold_time`, `buy_amount`, `xrxd_price`, `xrxd_count`, `xrxd_winline`, `xrxd_slline`, `xrxd_bonus`, `xrxd_margin`, `xrxd_time`, `entrust_time`, `is_xrxd`, `creator`, `modifier`, `created_at`, `updated_at`, `state`, `day`, `xrxd_give`, `xrxd_send`, `xrxd_transfer`, `lever`, `buy_out`, `warn_level`, `version`, `add_time`, `add_once`, `defee_time`, `get_defee_time`, `exit_right_type`, `listing_type`, `extra_dividend_type`, `exit_right_time`, `listing_time`, `extra_dividend_time`, `new_flag`, `xrxd_warn_level`, `taxation`, `direct_sign`, `middle_extra`, `middle_margin`, `vou_resistance`, `vou_service_deduction`, `voucher_id`, `voucher_record_id`, `close_time`, `open_time`, `financing`, `is_user_operate`, `collateral`) VALUES ('000001', '平安银行', 100, 100, 12.640000, '2019-05-21 13:12:57', NULL, NULL, 11.63, 158.00, 0.00, 3.00, '2019-05-23 00:10:00', 0.00, 7.00, '平台', '平台', 87172, '110300010160', user_id , 2, 5, '2019-05-21 13:13:04', 1264.00, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2019-05-14 15:38:01', 1, NULL, NULL, '2019-05-21 13:13:10', '2019-05-22 03:30:00', 1, 2, 0.000000, 0.000000, 0.000000, 8, 1, 12.01, 1, NULL, 0.00, '2019-05-22 00:59:54', NULL, 1, 1, 1, NULL, NULL, NULL, 0, NULL, NULL, 1, 0.0000, 0.0000, 0.00, 0.00, 0, 0, NULL, NULL, 2, 1, 2);
+            SET n=n+1;
+            set user_id = user_id + 1;
+        IF n=5 THEN
+            LEAVE loopname;
+        END IF;
+        END LOOP loopname;
+END;

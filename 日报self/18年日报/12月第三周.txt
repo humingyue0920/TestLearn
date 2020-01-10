@@ -1,0 +1,14 @@
+2018/12/17 周一
+1.连接U财富生产环境的数据库 ok
+2.xshell连接U财富测试环境和生产环境 ok
+3.接口文档RAR用户名密码 ok
+4.各种邮箱登陆（UPG）邮箱总是报RPC服务器不可用
+5.ifis前台原型地址，管理台的用户名与密码 ok
+6.本地Jekins玩一玩
+docker下的Jenkins安装和体验：https://www.cnblogs.com/yhaing/p/8567879.html
+windows10下的dockers安装：https://www.cnblogs.com/linjj/p/5606687.html
+windows10安装docker for windows：https://www.cnblogs.com/stulzq/p/7743865.html
+
+2018/12/21 周五
+手工群发短信过滤相同号码
+关于理财经理和产品经理的过滤

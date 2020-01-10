@@ -1,0 +1,47 @@
+2019/8/5  周一
+https://www.cnblogs.com/dangkai/p/10942532.html
+性能测试应该关注哪些点
+1.性能测试监控主要指标分为资源指标和系统指标
+资源指标主要与硬件资源消耗直接相关,系统指标则与用户场景和需求直接相关
+资源指标主要有cpu,内存,i/o和带宽
+系统指标主要有用户并发数,响应时间,事物成功率,超时错误率
+
+
+1.如何利用jmeter去测试系统的CPU,i/o等性能指标
+本次采用在Linux服务器上进行测试,并且推荐在和压测目标服务器相同的局域网上进行压测
+原因是:1.降低网络带宽对测试结果的影响
+2.服务器的资源配置肯定比笔记本的配置要好,压测时jmeter本身也会消耗资源,不建议在本地压测
+步骤一:
+安装jdk 1.wget    2.解压或者安装  tar -zxvf ...tar.gz  或者 yum install ...tar.gz   3.设置环境变量 vim /etc/profile 
+java_home = jdk安装目录  classpath = $java_home/lib   path = $java_home/bin
+步骤二 :
+安装jmeter 1.wget  2. unzip -d  解压目录 jmeter.zip分别是干什么的  3.设置环境变量  vim /etc/profile jmeter_home = jmeter安装目录  path=$jmeter/bin
+若想配置文件快速起效 执行命令 source  /etc/profile
+找到jmeter.sh所在目录,执行./jmeter.sh检查是否安装成功
+步骤三 
+下载jmeterPlugin.jar包,下载成功后将它放到jmeter安装目录下lib/ext文件夹下
+步骤四
+下载serverAgent.zip  下载成功后windows下直接解压,运行serverAgent.bat文件
+linux下直接解压,运行serverAgent.sh文件
+步骤五
+将准备好的脚本利用xshell上传到Linux服务器(上传到bin目录下)
+利用./jmeter.sh -n -t 脚本名称.jmx -l 报告名称.jtl
+步骤六:
+将报告拖到Windows下,运行jmeter,添加监听器查看我们所需要的cpu性能,以及其他我们需要的性能指标
+
+2.CPU,i/o,带宽,内存这些分别指什么
+3.jmeterPlugin.jar包和serverAgent.zip分别是干什么的
+
+
+2019/8/8 周四
+
+
+2019/8/9 周五
+交易规则:同品种代金券可多笔持仓与现在交易规则不相符
+禁止用户选择交易克数和委托价格与现制定规则不相符
+强制平仓规则是新制定的还是原有规则
+代金券到账弹窗出现的规则是什么 比如我直接将券使用掉,这个弹框是否出现
+购买克数超过代金券克数,自动显示代金券克数是什么意思
+可用数量提现:
+1.未选代金券时1克时是否可以增加
+2.选中代金券以后默认克数是几克

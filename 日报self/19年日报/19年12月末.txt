@@ -1,0 +1,59 @@
+2019/12/30   周一
+一类户：
+1.防跨步功能不受影响
+2.开户进度以最大的为准
+3.返回后可更新开户信息
+4.开户结果合并成一个状态，结果分为2个，数据库添加result字段
+5.四和五接口文档更新，接口重新测试
+6.进入该页面时，开户进度立即更新，该页面信息输入成功后，开户进度加1
+
+
+INSERT INTO `jjh_td_icbc`.`user_info`(`cngold_id`, `open_id`, `acct_no`, `open_type`, `cust_name`, `user_pwd`, `cert_num`, `cert_type_id`, `mem_id`, `bank_no`, `account_no`, `bind_account_no`, `mobile_phone`, `tel`, `zipcode`, `email`, `card_expire_date`, `province`, `branch_no`, `addr`, `artificial_num`, `ex_recommender`, `status`, `created_at`, `updated_at`, `web_account`, `step`, `device_type`, `settlement_account_flag`) VALUES ('10030047', NULL, '0001311100072764', NULL, NULL, '204c6944cf72c513848e2b1617398ed8', '110102199603230134', NULL, '110102199603230134', NULL, '456565', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, 0);
+
+1.重新开户，开户进度应该是更新的
+2.【判断页面开户进度】接口，开户成功或失败的时候，未将open_result字段返回回来
+3.上报工行卡和黄金编码接口，对用户的开户进度无限制了，因为用户可以返回上一步对开户信息进行修改，并且不更新开户进度
+但如果用户不是返回上一步，这时会更新该用户的开户进度
+
+
+
+2019/12/31  周二
+1.关于上报工行卡号和黄金编码和验证工行卡预留地址和邮政编码上报成功后,open_state状态是否需要更新
+目前是上报工行卡和黄金编码成功后open_state没有改变,而验证工行卡预留地址和邮政编码上报成功后,open_state状态更新
+需询问清楚,且上报预留手机号成功后,开户进度也会更新，上报黄金编码接口成功后，开户进度也会更新
+2.[验证工行卡预留地址和邮政编码],开户成功后不得修改信息
+3.[上报预留手机号],开户成功后不得修改信息
+异常流未控制,且入参错误也可上报成功
+4.【上报黄金编码】黄金编码为空好歹要控制一下吧
+5.开户成功后不得回退
+6.重新开户之前的开户信息是否需要清空
+7.二类户重新开户好像还没开发好
+
+
+
+2020/1/2  周四
+[验证工行卡预留地址和邮政编码]开户成功的用户不得修改该信息,且开户进度小于5的用户不得跨步上传该信息
+开户成功的用户不得修改该信息,且开户进度小于5的用户不得跨步上传该信息
+1.对于open_state=12且open_result=1或open_state>12的用户,调用此接口时,接口应返回"已开户成功,无法更改",现可修改成功
+2.对于open_state小于5的用户,应不能跨步上报此接口,接口应返回"一类户上报预留详细地址和邮政编码失败",现可上报成功
+真机测试报告:https://www.testin.cn/realmachine/recorddetail.htm?taskid=5e0d956895034134ecbb2ad3&reqtype=
+分享地址: https://www.testin.cn/s/t/5e0d956895034134ecbb2ad3
+后续接口重新测试
+
+
+
+
+2020/1/3  周五
+
+
+
+
+
+
+
+
+
+
+
+
+
