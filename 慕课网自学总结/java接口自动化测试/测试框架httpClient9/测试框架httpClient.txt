@@ -15,5 +15,85 @@ HTTP client官方网站：hc.apache.org
 
 9-3 配置优化方法
 1.新建package com.course.httpClient.cookies
-2.新建类 MyCookies
+2.新建类 MyCookiesForget
 3.在resourse下添加配置文件
+文件名为application.properties
+配置文件内代码自己写
+引入知识点：非常简单实用的工具类
+ResourseBundle对象，java.util包中自带的
+private ResourseBundle bundle 轻松的将配置文件读取出来
+bundle是个变量
+ResourseBundle对象默认识别properties文件
+
+public void beforeTest（）{
+ bundle(对象) = ResourceBundle.getBundle（"application"，Locale.CHINA）  //给bundle赋上值了
+ url = bundle.getString("test.url")
+ }
+ 
+ 
+ 
+遇到问题:返回回来的结果乱码
+
+9-4  获取cookie信息
+总是乱码,换个方式该怎么实现
+
+
+9-5  携带cookie信息
+1.声明一个私有变量,用来存储cookie信息 
+private CookieStore store;
+2.访问下一个请求
+2.1 解决依赖问题
+2.2 获取uri
+2.3 进行拼接,获得完整的url
+
+9-6  post方法的访问实战
+目标：访问带cookies信息的post请求
+post请求特点：request中带json参数且需要设置cookie
+response返回回来有响应数据，返回的结果需要判断结果是否正确
+1.创建类，MyCookieForPost  复制代码
+2.新建方法
+拼接最终的测试地址
+String testUrl = this.url + uri;
+声明一个client对象，用来进行方法是执行
+// HttpClient client = new HttpClient();
+CloseableHttpClient httpClient = HttpClients.custom().setDefaultCookieStore(cookieStore).build();
+声明一个方法，这个方法就是post
+HttpPost post = new HttpPost(testUrl);
+添加参数
+添加json依赖
+声明json对象
+JSONObject param = new JSONObject();
+param.put("name","huhansan");
+param.put("age","18")
+设置请求头信息 设置header信息
+post.setHeader("content-type","application/json")
+将参数信息添加到方法中
+StringEntity entity = new StringEntity(param.toString."utf-8");  //抛出异常
+post.setEntity(entity);
+声明一个对象，来进行响应结果的存储
+String result;
+设置cookies信息
+//client.setCookieStore(this.store);
+执行post方法
+HttpResponse response = client.execute(post)  //抛出异常
+获取响应结果
+result = EntityUtils.toString(response.getEntity(),"utf-8")
+处理结果，就是判断返回结果是否符合预期
+将返回的响应结果字符串转换为json对象
+JSONObject resultjson = new JSONObject(result);
+获取到结果值
+String success = (String) resultjson.get("huhansan");  //直接强转，转成String
+Sting status = (Sting) resultjson.get("status");
+
+具体的判断返回结果值
+Assert.assertEquals("success",success);
+Assert.assertEquals("1",status);
+前面是期望结果，后面是实际结果即接口返回的结果
+
+还有哪些地方可以优化呢，比如头信息，如果是公用的，可以优化到一个工具方法中
+获取到json格式转换
+最重要优化，添加参数的优化
+
+
+断点调试总结:https://www.cnblogs.com/yjd_hycf_space/p/7483471.html
+注:踩的坑,返回结果中text不能与json混用
