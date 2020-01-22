@@ -327,7 +327,7 @@
             <elementProp name="loginout" elementType="Cookie" testname="loginout">
               <stringProp name="Cookie.value">yes</stringProp>
               <stringProp name="Cookie.domain">127.0.0.1</stringProp>
-              <stringProp name="Cookie.path">/</stringProp>
+              <stringProp name="Cookie.path"></stringProp>
               <boolProp name="Cookie.secure">false</boolProp>
               <longProp name="Cookie.expires">0</longProp>
               <boolProp name="Cookie.path_specified">true</boolProp>

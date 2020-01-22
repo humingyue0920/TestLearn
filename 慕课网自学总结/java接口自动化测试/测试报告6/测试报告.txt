@@ -13,6 +13,8 @@
 3.监听器 class-name=com.vimalselvam.testng.listener.ExtentTestNgFormatter
 遇到的问题：maven仓库下载依赖包速度过慢
 解决办法：https://blog.csdn.net/anwebDesigner/article/details/103401397
+https://blog.csdn.net/tach1bana/article/details/81183452
+https://blog.csdn.net/baiyan3212/article/details/81207271  //注：这个方法比较好用
 <?xml version="1.0" encoding="UTF-8" ?>
 <suite name="这是我自己的测试套件">
     <test name="testdemo1">
