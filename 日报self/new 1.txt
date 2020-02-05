@@ -1,0 +1,109 @@
+1.类中定义全局变量，公用url
+private String url;
+定义私有变量，用来获取配置文件内容
+private ResourceBundle bundle;
+定义私有变量，用来存储cookie信息
+private CookieStore store;
+
+2.定义一个方法，在测试之前执行
+@BeforeTest
+public void beforeTest（）{
+//定义一个变量，用来存储配置文件中的信息
+bundle = ResourceBundle.getBundle("application",Locale.CHINA);  //注意的点，application代表文件名，无需再写后缀，bundle自动获取后缀名为properties文件
+//疑问：Locale.CHINA具体作用是什么
+//利用bundle获取文件中test.url的值，并赋给变量url
+url = bundle.getString("test.url");
+}
+
+3.定义一个方法，用来获取cookie信息，并存储
+@Test
+public void getCookie(){
+//定义一个变量，用来存储返回的响应结果
+String result;
+//获取配置文件中uri的值并拼接测试路径
+String uri = bundle.getString("get.cookie")；
+String testUrl = this.url + uri；
+
+//逻辑代码书写
+//利用HttpPost对象定义post方法
+HttpPost post = new HttpPost();
+//利用定义client对象，并存储cookie信息
+CloseableHttpClient client = HttpClients.custom().setDefaultCookieStore(store).build();
+//定义变量response，用来接收client执行post请求返回的结果
+HttpResponse response = client.execute(post);
+
+//以下代码是将返回结果转换为中文
+StringBuffer buffer=new StringBuffer();
+        if (response.getStatusLine().getStatusCode() == 200) {
+            InputStream inStream = response.getEntity().getContent();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inStream, "gbk"));
+            String line = "";
+            while ((line = reader.readLine()) != null) {
+                buffer.append(line);
+            }
+            System.out.println(buffer.toString());
+        }
+        
+        
+//获取cookie信息
+List<Cookie> cookielist = store.getCookies();
+//for循环，将cookie的值打印出来
+for(Cookie cookie:cookielist){
+String name = cookie.getName();
+String value = cookie.getValue();
+System.out.println("cookie name ="+name+"cookie value = "+value);
+
+}
+
+}
+
+
+//定义一个post请求，上一个接口返回的cookie值，该接口调用
+//依赖于上一个接口
+@Test(Dependent={"getCookie"})
+public void testpostcookie(){
+//定义uri，获取接口路径
+String uri = bundle.getString("post.cookie");
+//测试路径拼接
+String testUrl = this.url + uri;
+
+
+//逻辑书写
+String result;
+HttpPost post = new HttpPost(testUrl);
+//设置domain和path
+BasicClientCookie cookie = new BasicClientCookie(this.name,this.value);
+cookie.setDomain("127.0.0.1");
+cookie.setPath("/");
+//设置client对象
+CloseableHttpClient client = HttpClients.custom().setDefaultCookieStore(this.store).build;
+
+//添加domain和path
+this.store.addCookie(cookie);
+
+//添加参数，在pom.xml中添加依赖，引入json对象
+JSONObject param = new JSONObject();
+param.put("name","huhansan");
+param.put("age","18");
+//设置请求头信息，设置header信息
+post.setheader("content-type","application/json");
+//将参数信息添加到请求中
+StringEntity entity = new StringEntity(param.toString(),utf-8);
+post.setEntity(entity);
+//获取响应结果
+HttpResponse response = client.execute(post);
+result = EntityUtils.toString(response.getEntity(),"utf-8");
+
+//将响应结果转换为json对象
+JSONObject json=JSONObject.parseObject(result);
+
+//获取响应结果中的json值
+String sucesses = (String) resultjson.get("huhansan");
+String status = (String) resultjson.get("status");
+
+//将返回结果与预期结果做对比
+Assert.assertEquals(sucesses,"sucesses");
+Assert.assertEquals(status,"1");
+
+
+}
