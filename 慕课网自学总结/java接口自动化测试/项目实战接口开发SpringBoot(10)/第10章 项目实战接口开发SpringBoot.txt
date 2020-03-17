@@ -1,0 +1,96 @@
+10-1 接口自动化测试落地过程
+10-2 SpringBoot基本介绍
+使用SpringBoot开发第一个接口
+SpringBoot学习目录:https://www.jianshu.com/p/9a08417e4e84
+快速构建一个springboot项目（一）：https://www.cnblogs.com/triumph-wyp-com/p/9032802.html
+1.创建maven项目 chapter10
+2.在chapter10的pom文件中添加parent和依赖
+<parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.2.4.RELEASE</version>
+        <relativePath/> <!-- lookup parent from repository -->
+</parent>
+<dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+</dependencies>
+遇到问题,同一个moudal下出现两个parent，这是不被允许的
+解决办法：将springboot的parent剪切到总的pom文件下
+3.创建package hello
+4.创建类 SampleController
+在类中添加如下代码：
+package hello;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+
+@SpringBootApplication
+public class SampleController {
+    public static void main(String[] args){
+        SpringApplication.run(SampleController.class,args);
+    }
+
+}
+启动spring boot，
+遇到问题1：8080端口被占用
+解决办法：在该模块下的resource文件夹下添加application.properties,并写入代码
+#指定端口号
+server.port=8091
+遇到问题2：在启动过程中会有error报错信息，An incompatible version [1.2.12] of the APR based Apache Tomcat Native library is installed...
+解决办法：https://blog.csdn.net/zhoukikoo/article/details/80532483
+遇到问题3：com.mongodb.MongoSocketOpenException: Exception opening socket
+Caused by: java.net.ConnectException: Connection refused: connect
+解决办法：https://blog.csdn.net/qq_30558809/article/details/79985059
+采用了第一种方法解决了
+5.在hello包下新建package 名为controller
+6.新建类 TestSpringboot
+类中写入以下代码：
+package hello.controller;
+
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+
+@RestController
+public class TestSpringboot {
+    @RequestMapping(value = "test")
+    public String testsp(){
+        return "Hello SpringBoot";
+    }
+}
+7.在浏览器中输入http://127.0.0.1:8091/test即可
+
+
+10-3 使用SpringBoot开发get方法接口(返回结果带cookie的get请求)
+当类名为Application时，代表这是一个入口类,在上一节课已经介绍过
+1.新建类 MyGetCookie 
+具体代码如下:注Cookie的包一定要导入正确 import javax.servlet.http.Cookie;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
+
+@RestController
+public class MyGetCookies {
+    @RequestMapping(value = "/get/cookies",method = RequestMethod.GET)
+    public String getcookies(HttpServletResponse response) {
+        //HttpServletRequest  装请求信息的类
+        //HttpServletResponse 装响应信息的类
+
+        Cookie cookie  = new Cookie("loginout","yes");
+        response.addCookie(cookie);
+
+
+
+
+        return "恭喜你成功获得cookies信息";
+    }
+}
+
+
+10-4 开发一个携带cookies信息的get请求接口

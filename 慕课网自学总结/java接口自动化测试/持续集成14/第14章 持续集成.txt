@@ -1,0 +1,138 @@
+14-1 打包配置
+接口程序打包和测试代码打包
+1.测试代码打包
+1.1.打包成jar包主要是在pom文件中配置，打开第十二章的pom文件，在其中添加代码，主要是添加maven打包的插件和test.xml文件路径
+<build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.22.2</version>
+				<configuration>
+                    <suiteXmlFiles>
+                        <suiteXmlFile>
+                            ./src/main/resource/testng.xml
+                        </suiteXmlFile>
+                    </suiteXmlFiles>
+                </configuration>
+            </plugin>
+        </plugins>
+</build>
+1.2.如何在idea命令行中打包
+进入到相应目录下，此处进入第十二章 cd chapter12
+mvn clean package
+
+2.接口代码打包
+基本同上，在pom文件中添加代码，引用的插件会比之前的多
+2.1在以下代码中唯一需要变化的就是com.course.Application,其他的以后可以直接引用
+<build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+                   <source>1.8</source>  //java jdk版本是1.8
+				   <target>1.8</target>     //目标也是1.8
+                </configuration>
+            </plugin>
+			<plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>2.2.4.RELEASE</version>
+                <configuration>
+                    <mainClass>
+                        com.course.Application  //放的是程序的启动文件
+                    </mainClass>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>repackage</goals>  //固定写法
+                    </execution>
+                </executions>
+            </plugin>
+			<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <encoding>UTF-8</encoding>
+                    <compilerArguments>
+                        <extdirs>${project.basedir}/lib</extdirs>
+                    </compilerArguments>
+                </configuration>
+            </plugin>
+        </plugins>
+</build>
+2.2 进入相应目录下执行mvn clean package
+2.3 验证jar包是否可用
+java -jar jarpackageName.jar
+
+
+14-2 jenkins环境搭建
+以前就已搭建过，此处不再赘述
+
+
+14-3 Jenkins任务配置
+此章主要讲述配置项目，具体看视频
+1.创建deploy自由风格项目，配置源码，选择git 添加连接git的用户，输入git的登录用户名和密码
+选择git clone时的地址，分支暂时选master
+记得以前在大隐打包的时候，这个地方是一个变量，在打包的时候是有下拉选项可以选择版本号的，后续可以自己研究一下
+2.难点是构建，选择shell执行，具体代码如下
+//防止一些资源配置，如Java环境，maven环境没有加载上
+source /etc/profile
+//部署，循环部署，第二次部署的时候需要将之前运行的进程杀掉，即下次部署的时候需将上次正在运行的进程杀掉
+pid = ${ ps -ef | grep "chapter13-1.0-SHAPSHOT.jar" | grep -v grep | awk '{print $1}'}
+此处需搞清楚这句话是什么意思
+//如果pid有值的话，将pid进行杀掉
+if [ -n "$pid" ]; then
+kill -9 $pid
+fi 
+
+//进入相应目录下
+cd chapter13
+//执行mvn clean package
+mvn clean package
+//进入target目录下
+cd target
+//Jenkins启动程序时默认会将已经启动完成的程序杀死，此处让他不要杀死
+BUILD_ID = dontKillMe
+//执行启动命令,并加取地址符
+nohup java -jar chapter13-1.0-SHAPSHOT.jar &
+
+3.构建后的操作
+此处选择build other projects，即在构建完成后进行测试工作，此处填写test
+4.创建test自由风格项目，其他同上差不多，此处不做赘述
+5.重点讲述一下shell命令该如何写
+//防止一些资源配置，如Java环境，maven环境没有加载上
+source /etc/profile
+//进入相应目录下
+cd chapter12
+//执行mvn clean package
+mvn clean package
+
+
+14-4 Jenkins任务执行和工作目录简介
+主要存放在workspace中
+
+
+14-5 在线报告维护小系统的搭建
+在Jenkins的job运行完成之后，添加一些配置，目的是可以在线管理测试报告
+主要是在test项目shell语句中添加如下代码
+//定义result变量为最后一次打包的数量id
+result = ${ curl -s http://127.0.0.1:8080/job/test/lastBuild/buildNumber --user hu 123456 }
+//tomcat作为存放测试报告的中间件服务器，创建放置测试报告的文件夹
+mkdir /home/apache-tomcat-7.0.92/webapps/ROOT/$result
+//将jenkins下的测试报告复制到tomcat下
+cp /root/.jenkins/workspace/test/chapter12/test-output/index.html  /home/apache-tomcat-7.0.92/webapps/ROOT/$result/index.html
+
+
+
+
+
+
+
+
+
+

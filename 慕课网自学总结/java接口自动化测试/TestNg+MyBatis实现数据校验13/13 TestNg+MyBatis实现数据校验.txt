@@ -1,0 +1,507 @@
+13-1 接口开发 基础配置
+接口代码的开发,开发框架：springboot+mybatis
+1.创建model：chapter13，groupId：com.course.test
+2.pom文件中添加依赖
+spring-boot-starter-web,springfox-swaager2,springfox-swaager-ui,lombok,fastjson,mybatis-spring-boot-starter,
+mysql-connecter-java
+3.pom文件中添加父类
+<parent>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-starter-parent</artifactId>
+	<version>   </version> 
+</parent>
+4.添加配置文件
+在resources文件夹下添加application.yml,文件内容同之前
+添加logback.xml
+添加mybatis-Congig.xml,信息头文件此处不写，后续自己写
+<configuration>
+	<typeAliases>
+		<package name = "com.course.model"/>
+	</typeAliases>
+	<mappers>
+		<mapper resource="mapper/mysql.xml>
+	</mappers>
+</configuration>
+5.在resources文件夹下添加mapper文件夹，并添加mysql.xml
+
+
+13-2 接口代码开发
+1.java下创建package com.course
+2.创建启动类 Application
+3.创建package model，与之前创建的数据库对应
+4.创建类 User 与数据库字段相对应
+@Data
+public class User{
+private int id;
+private String userName;
+private String password;
+private String age;
+private String sex;
+private String permission;
+private String isDelete;
+}
+5.创建package config，创建SwaggerConfig
+配置swagger，具体代码见之前，复制即可
+6.创建package Controller，创建类UserManager
+//登录接口：从数据库中筛选用户登录，入参User类中的用户，并且返回cookie
+//添加验证cookie公共方法
+//添加用户：携带cookie，验证cookie，将验证cookie的方法抽取出来，后续统一调用
+
+
+
+
+@Log4j
+@RestController
+@Api(value="v1",description = "用户管理系统")
+@RequestMapper("v1")
+public class UserManager{
+ 
+	@Autowired
+	private SqlSessionTemplate template;
+	
+	//登录接口
+	@ApiOperation(value = "登录接口", httpMethod = "POST")
+	@RequestMapper(value= "/login"，返回cookie", method = RequestMethod.POST)
+	public Boolean login(HttpServletResponse response,
+						@RequestBody User user){
+		int i = template.selectOne("login", user);
+		Cookie cookie = new Cookie("login","true");
+		response.addCookie(cookie);
+		log.info("查询到的结果是" +i)；
+		if(i==1){
+		log.info("登录的用户是"+user.getUserName());
+		return true;
+		}
+		return false;
+	}
+	
+	//添加验证cookie公共方法
+	public Boolean verifyCookies(HttpServletRequest request){
+	Cookie[] cookies = request.getCookies();
+	if(Objects.idNull(cookies)){
+		log.info("未登录");
+		return false;
+	}
+	for(Cookie cookie : cookies){
+		if(cookie.getName().equals("login") && 
+		cookie.getValue().equals("true")){
+			log.info("cookies验证通过");
+			return true;
+		}
+	}
+	return false;
+	}
+	
+	//添加用户
+	@ApiOperation(value = "添加用户接口", httpMethod = "POST")
+	@RequestMapper(value= "/adduser"，返回cookie", method = RequestMethod.POST)
+	public Boolean addUser(HttpServletRequest request,
+							@requestBody User user){
+		Boolean x = verifyCookies(request);
+		//查询数据库的时候，定义一个查询结果，初始值result=0
+		int result = 0;
+		if(x != null){
+			result = template.insert("addUser", user);
+		}
+		if(result > 0){
+			log.info("添加用户的数量是"+result);
+			return true;
+		}
+		return false;
+	}
+	
+	//获取用户列表信息,实现了单个用户和多个用户查询
+	@ApiOperation(value = "获取用户（列表）信息接口", httpMethod = "POST")
+	@RequestMapper(value= "/getUserInfo"，返回cookie", method = RequestMethod.POST)
+	public List<User> getUserInfo(HttpServletRequest request,
+						@RequestBody User user){
+		Boolean x = verifyCookies(request);
+		if(x == 1){
+			List<User> users = template.selectList("getUserInfo", user);
+			log.info("getUserInfo获取到的用户数是"+user.size());
+			return users;
+		}else{
+			return null;
+		}
+	}
+	
+	
+	//更新或删除用户接口
+	public int updateUserInfo(HttpServletRequest request,
+							@RequestBody User user ){
+		Boolean x = verifyCookies(request);
+		int i = 0;
+		if(x == true){
+			i = template.updata("updataUserInfo", user);
+		}
+		log.info("更新数据的条目数为"+i)；
+		return i;
+	}
+}
+
+
+
+13-3 mapper开发及自测接口代码
+此处引入知识点：<trim标签>
+perfix:代表条件是什么
+prefixOverrides:预处理条件
+suffixOverrides:尾部处理条件
+1.补充mapper下的mysql.xml文件
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+		
+<mapper namespace = "com.course">
+	<!--登录接口sql-->
+	<select id = "login" paramterType = "com.course.model.User" resultType = "Integer">
+		select count(*) from User 
+		where userName = #{userName} and password = #{password};
+	</select>
+	
+	<!--新增用户接口sql-->
+	<insert id = "addUser" paramterType = "com.course.model.User"> //注：无返回结果类型
+		insert into User(userName,password,age,sex,permission,isDelete) 
+		values(#{userName},#{password},#{age},#{sex},#{permission},#{isDelete});
+	</insert>
+	
+	<!--获取（用户/信息）列表接口-->
+	<select id = "getUserInfo" paramterType = "com.course.model.User" resultType = "com.course.model.User">  //注：返回结果类型为com.course.model.User
+		select * from User
+		<trim perfix="where" prefixOverrides="and">
+			<if test="null != id and ' ' != id">  //这句话表达的意思是如果id不为null，并且id不为字符串的空
+				and id = #{id},
+			</if>
+			<if test="null != userName and ' ' != userName">  
+				and userName = #{userName},
+			</if>
+			<if test="null != password and ' ' != password">  
+				and password = #{password},
+			</if>
+			<if test="null != age and ' ' != age">  
+				and age = #{age},
+			</if>
+			<if test="null != sex and ' ' != sex">  
+				and sex = #{sex},
+			</if>
+			<if test="null != permission and ' ' != permission">  
+				and permission = #{permission},
+			</if>
+			<if test="null != isDelete and ' ' != isDelete">  
+				and isDelete = #{isDelete}
+			</if>
+		</trim>
+	</select>
+	
+	
+	<!--更新/删除用户信息sql-->
+	<updata id = "updataUserInfo" paramterType = "com.course.model.User"> 
+		updata User
+		<trim prefix = "set" suffixOverrides = ",">
+			<if test="null != userName and ' ' != userName">  
+				and userName = #{userName},
+			</if>
+			<if test="null != age and ' ' != age">  
+				and age = #{age},
+			</if>
+			<if test="null != sex and ' ' != sex">  
+				and sex = #{sex},
+			</if>
+			<if test="null != permission and ' ' != permission">  
+				and permission = #{permission},
+			</if>
+			<if test="null != isDelete and ' ' != isDelete">  
+				and isDelete = #{isDelete}
+			</if>
+		</trim>
+		where id = {id};
+	</updata>
+</mapper>
+
+
+
+13-4 自动化测试代码二次开发(一)
+本小节主要内容是：发送请求，并将返回回来的实际结果与预期结果进行对比
+1.完善第十二章中cases下的测试用例，第一个以AddUserTest为例
+public class AddUserTest(){
+
+
+	//添加用户正常流
+	@Test(dependentgroups = "LoginTrue" groups = "addUserTrue" description="添加用户正常流")
+	public void addUserTrue(){
+		SqlSession session = DatabaseCongif.getsqlsession();
+		addUserCase addusercase = session.selectOne("addusercase",1);
+		sour(addusercase.toString);
+		sour(TestConfig.addUserUrl);
+		
+		//发请求，获取结果
+		String result = getResult(addUserCase);
+		
+		//验证返回结果
+		User user = session.selectOne("addUser",addUserCase);
+		sour(user.toString());
+		Assert.assertEquals(addUserCase.getExpected(),result);
+	}
+	
+	//发请求的方法
+	public String getResult(AddUserCase addUserCase){
+		HttpPost post = new HttpPost(TestConfig.addUserUrl);
+		//添加参数
+		JSONObject param = new JSONObject();
+		para.put("userName", addUserCase.getUserName());
+		para.put("password", addUserCase.getpassword());
+		para.put("age", addUserCase.getage());
+		para.put("sex", addUserCase.getsex());
+		para.put("permission", addUserCase.getpermission());
+		para.put("isDelete", addUserCase.getisDelete());
+		
+		//添加信息头
+		post.setHeader("content-type", "application/json");
+		
+		//将参数添加到方法中
+		StringEntity entity = new StringEntity(param.toString(), "utf-8");
+		post.setEntity(entity);
+		
+		//因为是本地请求，所以需要设置Domain和path
+		//设置cookies，虽然暂时没有写登录，但是我们可以利用工具类，工具类虽然暂时没有赋值，但是一会可以赋值
+		TestConfig.defaultHttpClient.setCookieStore(TestConfig.store);
+		
+		String result; //存放返回结果
+		HttpResponse response = TestConfig.defaultHttpClient.excute(post);
+		result=EntityUtils.toString(response.getEntity(),"utf-8");
+		
+		
+		 
+
+
+	}
+	//添加用户异常流
+	@Test(dependent = "LoginTest" groups = "addUserFalse" description="添加用户异常流")
+	public void addUserFalse(){
+		SqlSession session = DatabaseCongif.getsqlsession();
+		addUserCase addusercase = session.selectOne("addusercase",1);
+		sour(addusercase.toString);
+		sour(TestConfig.addUserUrl);
+	}
+}
+
+
+2.完善第十二章中cases下的LoginTest的测试用例
+public class LoginTest{
+
+@beforeTest(groups = "loginTrue",description = "测试准备工作")
+public void beforeTest(){
+TestConfig.getaddUserUrl = ConfigFile.getUrl(InterfaceName.ADDUSER);
+//其他接口同这个，此处不做多写
+TestConfig.defaulthttpclient = new DefaultHttpClient;
+}
+
+@Test(groups="loginTrue", description="登录成功正常流")
+public void loginTrue(){
+SqlSession session = DatabaseUtil.getsqlSession();
+LoginCase logincase = session.selectOne("logincase",1)
+System.out.println(logincase.toString);
+System.out.println(TestConfig.loginUrl);
+
+//发请求，获取结果
+String result = getResult(loginCase);
+
+//验证返回结果
+Assert.assertEquals(loginCase.getExpected(),result);
+}
+
+
+@Test(groups="loginFalse", description="登录失败异常流")
+public void loginFalse(){
+SqlSession session = DatabaseUtil.getsqlSession();
+LoginCase logincase = session.selectOne("logincase",2);
+System.out.println(logincase.toString);
+System.out.println(TestConfig.loginUrl);
+}
+
+//发送请求的方法
+public String getResult(LoginCase loginCase){
+	//定义post请求
+	HttpPost post = new HttpPost(TestConfig.loginUrl);
+	//添加参数
+	JSONObject param = new JSONObject();
+	param.put("userName",loginCase.getuserName());
+	param.put("password",loginCase.getpassword());
+	//设置信息头
+	post.setHeader("content-type","application/json");
+	//将参数添加到请求中
+	StringEntity entity = new StringEntity(param.toString(),"utf-8");
+	post.setEntity(entity);
+	//定义变量存放返回结果
+	String result;
+	HttpResponse response = TestConfig.defaultHttpClient.excute(post);
+	result = EntityUtils.toString(response.getEntity(),"utf-8");
+	//将cookies附上值
+	TestConfig.store = TestConfig.defaultHttpClient.getCookiestore();
+	return result;	
+}
+}
+
+
+13-5 自动化测试代码二次开发(二)
+1.写GetUserInfoListTest，与上一小节写的基本上差不多
+唯一不同的是这个返回的是一个list，所以定义的时候结果类型是JSONArray
+
+//发送请求，获取结果
+JSONArray resultJson = getJsonResult(getUserInfoCase);
+
+//结果验证
+List<User> userList = session.selectList(getUserListCase.getExpected(),getUserListCase);
+for(User u:userList){
+	sour("获取的user："+u.toString());
+}
+JSONArray userListJson = new JSONArray(userList);
+Assert.assertEquals(userListJson.length(),resultJson.length());
+for(int i = 0, i<resultJson.length(),i++){
+	JSONObject expect = (JSONObject) resultJson.get(i);
+	JSONObject actual = (JSONObject) userListJson.get(i);
+	Assert.assertEquals(expect.toString(), actual.toString());
+} 
+
+
+//发送请求的方法
+private JSONArray getJsonResult(GetUserListCase getUserListCase){
+	HttpPost post = new HttpPost(TestConfig.getUserListUrl);
+	JSONObject param = new JSONObject();
+	param.put("userName",getUserListCase.getuserName);
+	...
+	post.setHeader("content-type","application/json");
+	StringEntity entity = new StringEntity(param.toString(),"utf-8");
+	post.setEntity(entity);
+	TestConfig.defaultHttpClient.setCookieStore(TestConfig.store);
+	String result;
+	HttpResponse response = TestConfig.defaultHttpClient.excute(post);
+	result = EntityUtils.toString(response.getEntity,"utf-8");
+	JSONArray jsonArray = new JSONArray(result);
+	return jsonArray;
+}
+
+2.再写GetUserInfoTest
+JSONArray resultJson = getJsonResult(getUserInfoCase);
+User user = session.selectOne(getUserInfoCase.getExpected(),getUserInfoCase);
+userList.add(user);
+List userList = new ArrayList(userList);
+
+Assert.assertEquals(jsonArray,resultJson);
+
+private JSONArray getJsonResult(GetUserListCase,getUserInfoCase){
+	HttpPost post = new HttpPost(TestConfig.getUserInfoUrl);
+	JSONObject param = new JSONObject();
+	param.put("userName",getUserInfoCase.getuserName);
+	...
+	post.setHeader("content-type","application/json");
+	StringEntity entity = new StringEntity(param.toString(),"utf-8");
+	post.setEntity(entity);
+	TestConfig.defaultHttpClient.setCookieStore(TestConfig.store);
+	String result;
+	HttpResponse response = TestConfig.defaultHttpClient.excute(post);
+	result = EntityUtils.toString(response.getEntity,"utf-8");
+	List resultList = Arrays.asList(result);
+	JSONArray array = new JSONArray(resultList);
+	return array;
+}
+
+3.再写UpdateTest
+此处省略了
+
+
+13-6 自动化测试代码二次开发(三)
+主要写sql语句，获取的是执行完了之后数据库当中的数据能不能成
+注：其中model层有一个单独的User类，具体代码不清楚
+1.在SQLMapper.xml文件中写sql语句
+<!--获取用户信息-->
+<select id = "getUserInfo" paramterType = "com.course.model.GetUserInfoCase" resultType = "com.course.model.User"
+	select * from getuserinfo where id = #{userId};
+</select>
+
+<!--获取用户列表-->
+<select id = "getUserList" paramterType = "com.course.model.GetUserListCase" resultType="com.course.model.user">
+	select * from user
+	<trim prefix= "where" prefixOverrides = "and">
+		<if test = "null != userName and "" != userName">
+			userName = #{userName}
+		</if>
+		<if test = "null != sex and "" != sex">
+			sex = #{sex}
+		</if>
+		<if test = "null != age and "" != age">
+			age = #{age}
+		</if>
+	</trim>
+	;
+</select>
+
+<!--获取更新之后的用户信息-->
+<select id = "getUpdataUserInfo" paramterType = "com.course.model.GetUpdateUserInfoCase" resultType="com.course.model.User">
+	select * from user
+		<trim prefix = "where" prefixOverrides = "and"> 
+			<if test="null != userName and "" != userName">
+				userName = #{userName}
+			</if>
+			<if test = "null != sex and "" != sex">
+				sex = #{sex}
+			</if>
+			<if test = "null != age and "" != age">
+				age = #{age}
+			</if>
+			<if test = "null != permission and "" != permission">
+				permission = #{permission}
+			</if>
+			<if test = "null != isDelete and "" != isDelete">
+				isDelete = #{isDelete}
+			</if>
+		</trim>
+		and id = #{userId}
+</select>
+
+<!--添加用户-->
+<select id ="addUser" paramterType = "com.course.model.addUserCase" resultType = "com.course.model.user">
+	select * from user 
+	where 
+	userName = #{userName}
+	and age = #{age}
+	and sex = #{sex}
+	and permission = #{permission}
+	and isDelete = #{isDelete};
+</select>
+
+
+13-7 常见问题及解决(一和二)
+1.当接口返回结果与数据库查询结果相对比的时候，报空指针异常
+原因：java分多个进程工作，同步操作，未执行完就去查询结果，所以得到的结果是空
+解决办法：添加 Thread.sleep(3000); 让程序等待一下执行
+
+2.当接口返回数据与数据库查询结果对比时，由于顺序不同，导致验证不通过
+比如Assert.assertEquals(jsonArray,resultJson);这句在有的机器上执行会报错，有的机器上不会
+解决办法：将array中的每一个字段都拿出来，一一对比
+
+多个assert怎么样进行判断
+
+3.看视频
+
+4.jsonArray和resultJson对比出错
+原因：resultJson中有两个大括号，而jsonArray中只有一个大括号
+resultJson中第0个元素只有一个大括号
+解决办法：在Assert.assertEquals(jsonArray,resultJson);
+添加一行
+JSONArray jsonArray1 = new JSONArray(resultJson.getString(0));
+Assert.assertEquals(jsonArray,jsonArray1);
+运行后发现还是不一样，此处存在坑
+需将最后一行改为Assert.assertEquals(jsonArray.toString(),jsonArray1.toString());
+
+
+
+
+
+
+
+
+
+
+
+

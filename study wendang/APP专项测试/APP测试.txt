@@ -46,4 +46,5 @@ adb start-server 当adb出现问题或者adb启动不起来的时候，先kill�
 通过操作CTRL+D 或exit 就可以退出shell远程连接.
 
 
-如何对app进行弱网测试
+app常见性能测试点：
+https://blog.csdn.net/xiaomaoxiao336368/article/details/83547318?depth_1-utm_source=distribute.pc_relevant.none-task&utm_source=distribute.pc_relevant.none-task

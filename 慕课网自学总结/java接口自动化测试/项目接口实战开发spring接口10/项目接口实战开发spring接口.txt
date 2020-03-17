@@ -1,0 +1,214 @@
+10-1 接口自动化测试落地过程
+10-2 SpringBoot基本介绍
+使用SpringBoot开发第一个接口
+SpringBoot学习目录:https://www.jianshu.com/p/9a08417e4e84
+快速构建一个springboot项目（一）：https://www.cnblogs.com/triumph-wyp-com/p/9032802.html
+1.创建maven项目 chapter10
+2.在chapter10的pom文件中添加parent和依赖
+<parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.2.4.RELEASE</version>
+        <relativePath/> <!-- lookup parent from repository -->
+</parent>
+<dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+</dependencies>
+遇到问题,同一个moudal下出现两个parent，这是不被允许的
+解决办法：将springboot的parent剪切到总的pom文件下
+3.创建package hello
+4.创建类 SampleController
+在类中添加如下代码：
+package hello;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+
+@SpringBootApplication
+public class SampleController {
+    public static void main(String[] args){
+        SpringApplication.run(SampleController.class,args);
+    }
+
+}
+启动spring boot，
+遇到问题1：8080端口被占用
+解决办法：在该模块下的resource文件夹下添加application.properties,并写入代码
+#指定端口号
+server.port=8091
+遇到问题2：在启动过程中会有error报错信息，An incompatible version [1.2.12] of the APR based Apache Tomcat Native library is installed...
+解决办法：https://blog.csdn.net/zhoukikoo/article/details/80532483
+遇到问题3：com.mongodb.MongoSocketOpenException: Exception opening socket
+Caused by: java.net.ConnectException: Connection refused: connect
+解决办法：https://blog.csdn.net/qq_30558809/article/details/79985059
+采用了第一种方法解决了
+5.在hello包下新建package 名为controller
+6.新建类 TestSpringboot
+类中写入以下代码：
+package hello.controller;
+
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+
+@RestController
+public class TestSpringboot {
+    @RequestMapping(value = "test")
+    public String testsp(){
+        return "Hello SpringBoot";
+    }
+}
+7.在浏览器中输入http://127.0.0.1:8091/test即可
+
+
+10-3 使用SpringBoot开发get方法接口(返回结果带cookie的get请求)
+当类名为Application时，代表这是一个入口类,在上一节课已经介绍过
+1.新建类 MyGetCookie 
+具体代码如下:注Cookie的包一定要导入正确 import javax.servlet.http.Cookie;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
+
+@RestController
+public class MyGetCookies {
+    @RequestMapping(value = "/get/cookies",method = RequestMethod.GET)
+    public String getcookies(HttpServletResponse response) {
+        //HttpServletRequest  装请求信息的类
+        //HttpServletResponse 装响应信息的类
+
+        Cookie cookie  = new Cookie("loginout","yes");
+        response.addCookie(cookie);
+
+
+
+
+        return "恭喜你成功获得cookies信息";
+    }
+}
+
+
+10-4 开发一个携带cookies信息的get请求接口
+
+10-5 需求携带参数的get请求两种开发方式
+第一种方法url：key=value&key=value方式
+127.0.0.1:8091/get/with/param?page=1&pagesize=3
+1.创建map返回类型的方法,因为商品列表是Map类型，并且一个是商品名称，一个是商品价格String Interger
+2.在请求参数中添加@RequestParam注释 类型 名字，多个参数时用逗号隔开
+3.创建map对象，new一个哈希对象
+4.将商品列表普通进入类表中
+5.返回商品列表
+public Map(String,Interger) getList(@RequestParam Interger page,@RequestParam Interger pagesize){
+Map(String ,Interger) mylist = new HashMap<>();
+mylist.put("hf",200);
+return mylist;
+}
+
+第二种方法url：请求路径/{入参1}/{入参2}/.../{入参n}
+后期自己总结
+
+
+10-6 springBoot集成SwaggerUI
+SwaggerUI 自动生成接口文档，类似于插件的这么一个东西
+1.打开本章节pom文件，引入swagger依赖
+<!-- https://mvnrepository.com/artifact/io.springfox/springfox-swagger2 -->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>2.9.2</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/io.springfox/springfox-swagger-ui -->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>2.9.2</version>
+        </dependency>
+2.此处发现swagger2和swagger-UI 的版本一致，可将版本提取出来，作为一个变量
+在pom文件中添加properties属性
+<properties>
+	<swagger.version>2.9.2</swagger.version>
+</properties>
+将dependency中的版本号替换成${swagger.version}
+3.添加package  config
+4.添加类 swaggerConfig 配置文件固定写法
+在类上加入注释@Enableswaager2 @Configuration
+具体写法见代码
+视频中会发现一切文件写好之后http：//127.0.0.1：8091/swagger-ui.html 中无页面，原因是sampleController中
+注解@ComponentScan的作用域只作用到（）中，现如今这个注解已取消，扫描所有接口
+5.在MygetMethod类上面加注释@Api(value = ”“，description = "介绍说明“）
+在各个方法上加入注释@ApiOperation(value = "解释说明", httpMethod = "GET")
+注：ApiOperation中的方法一定要大写，否则会报错
+在各类的配置完成之后，怎么在页面上显示API接口的描述性注释呢？那么就要在API中加入Swagger。
+如何在API中加入Swagger呢？可以通过在API上添加注解实现API文档的同步效果，具体的注解如下。
+@Api
+                   表明可供Swagger展示的接口类(多用在Controller类上面)
+
+                   tags=”说明该类的作用，非空时将覆盖value的值”。
+
+                   value=”基本路径”
+
+                   description = ”描述类的作用“
+
+@ApiOperation
+       描述API方法(用在方法上面)
+
+value=”说明方法的用途、作用”
+	httpMethod 指定HTTP请求的方式，GET/POST等。
+	produces  设置MIME类型列表，如application/json，application/xml等。
+	notes  接口发布说明
+	protocols  设置特定协议，如http、https等。
+	response  响应类型(即返回对象)
+在运行过程中总结犯错
+1.ApiOperation中的方法一定要大写，否则会报错
+2.在@RequestMapping(value = "/get/with/cookies",method = RequestMethod.GET)
+此处的值是value不是name，value值前面一定要加/
+	
+		
+10-7 返回cookies信息的post请求springboot开发
+定义变量存储cookie
+用户登录成功获取到cookies，然后再访问商品列表，都是post请求
+在写代码过程中所犯的错
+1.定义cookie变量时，代码写错，且无法分清是cookie还是cookies
+错误代码   private String Cookies cookies;
+正确代码 private static Cookie cookie；
+2.登录接口入参和返回结果都有时不知道该怎么写
+解决办法：都在括号内写入，用逗号隔开即可
+
+
+10-8 cookies验证和返回列表的post接口开发及常见错误
+开发遇到问题1：同时需要返回未登录提示和商品列表，该如何定义这个方法的返回类型
+1.此处引入插件：settings-》plugins-》安装LOmBock 插件
+2.添加package Bean
+2.添加类 Good
+3.在po'm文件中添加依赖lombok，在good类中添加注释@Data，在代码中引入了lombok中的tostring方法，解决上述问题
+具体代码开发见idea
+开发遇到问题1：按照视频中的方法返回类型写入Good，实践证明不行，返回类型写成String，后续用到tostring，代码不报错
+
+.equals和==的区别
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
+		
+		
+		
+		
+		

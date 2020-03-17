@@ -1,0 +1,313 @@
+12-1 Case与系统的表结构设计
+一张表里存储一个接口的case，并不是必须的
+模拟用户管理系统。新建表与字段
+此处可以熟悉一下mysql的建表，添加字段知识
+user,getuserlist,getuserinfo,adduser,updateuserinfo,login
+表结构：
+user：id,userName,password,age,sex,permission,isDelete
+adduser : id,userName,password,sex,age,permission,isDelete,expected
+getuserinfo: id,userid,expected
+getuserlist:userName,age,sex,expected
+login:id,userName,password,expected
+update:id,userId,userName,sex,age,permission,isDelete,expected
+
+CREATE TABLE
+IF
+	NOT EXISTS `getuserlist`(
+	`id` INT auto_increment,
+	`userName` VARCHAR ( 255 ),
+	`age` INT,
+	`sex` VARCHAR ( 255 ),
+	`expected` VARCHAR ( 255 ),
+	PRIMARY KEY ( `id` ) 
+	) ENGINE = INNODB DEFAULT CHARSET = utf8;
+
+
+12-2 基础配置文件的设计
+1.创建model，chapter12
+2.添加依赖
+httpclent，json，mybatis,mysql-connect-java,lombok,extentreports,
+testng-extentsreports,extentreports,testng
+3.中间两步操作，具体看视频
+4.resource文件夹下添加databaseConfig.xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+    <--!注册对象的空间命名-->
+	 <environments default="development">
+	 <environment id="development">
+	 <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+			<--!1.加载数据库驱动---->
+                <property name="driver" value="com.mysql.jdbc.Driver"/>
+				<--!2.数据库连接地址-->
+                <property name="url" value="jdbc:mysql://192.168.1.7:3306/course"/>
+				<--!数据库root用户-->
+                <property name="username" value="root"/>
+				<--!数据库密码-->
+                <property name="password" value="123456"/>
+            </dataSource>
+        </environment>
+		<--!注册映射文件，java对象与数据库之间的下xml文件路径-->
+	<mappers>
+        <mapper resource="mapper/SQLMapper.xml"/>
+    </mappers>
+</configuration>
+5.添加testng.xml
+6.添加application.properties
+test.url = http：//127.0.0.1：1234
+
+login.url = /v1/login
+updateUserInfo.url = /v1/updateUserInfo
+getUserList.url = /v1/getUserList
+getUserInfo.url = /v1/getUserInfo
+addUser.url = /v1/addUser
+
+<dependencies>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>7.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.10</version>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20190722</version>
+        </dependency>
+        <dependency>
+            <groupId>com.relevantcodes</groupId>
+            <artifactId>extentreports</artifactId>
+            <version>2.41.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.aventstack</groupId>
+            <artifactId>extentreports</artifactId>
+            <version>4.0.9</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.16.16</version>
+        </dependency>
+        <dependency>
+            <groupId>com.vimalselvam</groupId>
+            <artifactId>testng-extentsreport</artifactId>
+            <version>1.3.1</version>
+        </dependency>
+    </dependencies>
+	
+	
+12-3 model层、config层和加载配置文件工具类
+分四层：
+1.配置层：config
+2.用例层：cases
+3.工具层：utils 简化代码量
+4.model层：model 就是将刚刚数据库表的字段一一映射到model里面去，这样框架会帮我们做很多事，我们就不用一个字段一个字段判断，一个字段一个字段处理
+（为了将返回结果与数据库结果进行对比）
+model层下面的每一个类对应着测试库中的每一个用例表，字段也一一对应
+在写类的时候，需要将所有字段tostring，复写tostring的方法，返回json字符串的形式
+在该层添加InterfaceName，并且类型为enum，枚举类，里面存放是是接口名称，所有接口大写
+作用：所有的类名不用单个类名去传，只用该枚举类去传，在配置文件层也有文件与之相对应
+@Data
+public class UserCase(){
+private int id;
+private String userName;
+private String age;
+private String sex;
+private String password;
+private String permission;
+private String isDelete;
+
+
+//复写tostring的方法
+@Override
+private String toString(){
+return(
+"{id:"+id+","+
+"userName:"+userName+","+
+"age:"+age+","+
+"sex:"+sex+","+
+"password:"+password+","+
+"permission:"+permission+","+
+"isDelete:"+isDelete+"}"
+)；
+}
+}
+此处需要搞清楚的两个问题：
+1.@Data注解作用
+2.@Override注解作用
+其他表同该类一样
+
+
+枚举类：
+public enum InterfaceName(){
+	LOGIN,ADDUSER,UPDATEUSERINFO,GETUSERLIST,GETUSERINFO
+}
+
+
+
+5.配置层，生成测试报告
+config下创建类 ExtentTestNGReporterListener	
+直接将以前的代码复制过来
+创建类TestConfig 对应application.properties设置的那些，用来装一些变量
+为什么是静态呢，因为加载一次就可以了
+public class TestConfig(){
+
+public static String addUserUrl;
+public static String getUserInfoUrl;
+public static String getUserListUrl;
+public static String loginUrl;
+public static String updateUserInfoUrl;
+
+public static HttpClient httpclient; //视频中的代码是public static DefaultHttpClient defaulthttpclient;
+public static CookieStore store;
+
+}
+6.utils  工具类，帮助我们直接拼接url
+6.1:创建类ConfigFile  作用是加载配置文件，用到了刚刚的枚举类
+public class ConfigFile(){
+private static ResourseBundle bundle = ResourseBundle.getBundle("Application",Locale.china)
+public static String getUrl(InterfaceName name){
+String address = bundle.getString("test.url");
+String uri;
+//中间的逻辑代码，此处只写一个，后续自己补充
+if(name == InterfaceName.LOGIN){
+uri = bundle.getString("loginUrl.url");
+}
+//最终的测试地址
+String testUrl = address + uri;
+return testUrl;
+}
+}
+工具类都是静态方法，不用new，可以直接使用
+	
+
+
+
+12-4 数据库工具类的创建
+1.配置层：config
+2.用例层：cases
+3.工具层：utils 
+4.model层：model 
+6.2:添加能够执行sql语句的对象
+创建工具类DatabaseUtil，工具类都是静态方法
+能够执行sql语句的对象叫SqlSession
+public class DatabaseUtil{
+
+public static SqlSession getsqlSession(){
+//获取配置的资源文件,即把这个文件加载出来
+Reader reader = Resources.getResourceAsReader("databaseConfig.xml");
+//把这个文件build出来，build返回回来的叫SqlSessionFactory
+//其实就是启用类加载器将这个文件加载出来
+SqlSessionFactory factory = new SqlSessionFactoryBuild().build("reader");
+//返回SqlSession就是能够执行配置文件中的sql语句
+SqlSession sqlSession = factory.openSession();
+
+return sqlSession;
+}
+}
+
+7.在Cases层写测试用例，每一个用例就是一个类
+1.新建类LoginTest
+2.测试准备工作需要做的事：
+	1.将五个接口完整的url得到
+	2.定义httpclient，定义到TestConfig中，后面直接赋值就可以了
+	3.定义cookies，定义到TestConfig中，后面直接赋值就可以了
+3.测试正常流
+public class LoginTest{
+
+@beforeTest(groups = "loginTrue",description = "测试准备工作")
+public void beforeTest(){
+TestConfig.getaddUserUrl = ConfigFile.getUrl(InterfaceName.ADDUSER);
+//其他接口同这个，此处不做多写
+TestConfig.defaulthttpclient = new DefaultHttpClient;
+}
+
+@Test(groups="loginTrue", description="登录成功正常流")
+public void loginTrue(){
+SqlSession session = DatabaseUtil.getsqlSession();
+LoginCase logincase = session.selectOne("logincase",1)
+System.out.println(logincase.toString);
+System.out.println(TestConfig.loginUrl);
+}
+
+@Test(groups="loginFalse", description="登录失败异常流")
+public void loginFalse(){
+SqlSession session = DatabaseUtil.getsqlSession();
+LoginCase logincase = session.selectOne("logincase",2);
+System.out.println(logincase.toString);
+System.out.println(TestConfig.loginUrl);
+}
+}
+	
+	
+8.在SQLMapper.xml文件中写sql语句，此处头信息省略
+<mapper  namespace = "com.course.model">  //注：此处的namespace由自己定义
+	<select id = "logincase", parameterType = "Integer", resultType = "com.course.model.Login">
+		select * from login where id = #{id};
+	</select>
+</mapper>
+
+9.在Cases层面添加其他接口用例
+此处新建AddUserTest类,此接口有一个依赖的问题，添加dependent="loginTrue",description = "",此处不做过多介绍
+其他接口的用例同该接口，注：在更新用户信息接口中，用例存在更新和删除，后面也是用selectOne，以id做区分，
+思考，如果是插入该如何做，猜测应该同上面一样，用selectOne，以id做区分
+
+10.在SQLMapper.xml文件中补写sql语句，此处不多些了
+注：返回的resultType不一样，每一个返回类型与model下的类相对应
+
+11.在testng.xml文件中将用例添加进去
+<suite name = "用户管理系统测试套件">
+	<test name ="用户管理系统测试用例">
+		<classes>
+			<class name = "com.course.cases.LoginCase">
+				<methods>
+					<include name ="loginTrue">
+					<include name ="loginFalse">
+				</methods>
+			</class>
+			<class name = "com.course.cases.AddUser">
+				<methods>
+					<include name ="addUser">
+				</methods>
+			</class>
+			//此处省略其他几个，后续自己写
+		</classes>
+	</test>
+</suite>
+
+
+12-6 产出测试报告及解决异常
+本小节解决问题
+1.产出测试报告
+2.解决异常问题
+1.在testng.xml中添加监听器，具体代码见第六章
+java.lang.ClassCastException类转换异常
+视频中的两个错误，一个是因为改类名没有做到统一
+还有一个是因为写sql语句中的id与调用时id写的不一致导致的，报错信息也是之前mapper not contain...
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
